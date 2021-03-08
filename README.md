@@ -26,9 +26,9 @@ This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [
 
 4.  [object_mutelist-] is more subtle but very useful:
 
-Use _inside-cameraname (**mute all events inside a defined area**) , for small things that repeatably generate false positives. For me that was a potted plant out front which AI said was a person at night.
+	 _inside-cameraname (**mute all events inside a defined area**) : use for small things that repeatably generate false positives. For me that was a potted plant out front which AI said was a person at night.
 
-Use _outside-cameraname (**mute all events outside, but also encapsulating, a defined area**) , for large things that do the same. For me, my front hedge became a dog as the sun began to set!
+	_outside-cameraname (**mute all events outside, but also encapsulating, a defined area**) : use for large things that do the same. For me, my front hedge became a dog as the sun began to set!
 
 ![!](./example2-mutelist.jpg "")
 
@@ -36,7 +36,7 @@ Use _outside-cameraname (**mute all events outside, but also encapsulating, a de
 
 ![!](./example1-event.jpg "")
 
-You also get email and/or MQTT message for these (if configured) in [config.txt](./config.txt).
+You also get an email and/or MQTT message for these (if configured) in [config.txt](./config.txt).
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
