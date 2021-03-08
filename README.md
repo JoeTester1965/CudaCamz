@@ -62,9 +62,11 @@ Experiment - Four cameras attached at 720p, 20fps - Constant Bit Rate. Ambient t
 
 Measured using [jtop](https://pypi.org/project/jetson-stats/)
 
-power plan mode		1		2.5A	AO (alws-on) temp 52C	~190 images per second		
-power plan mode		0		6.0A	AO (alws-on) temp 66C	~310 images per second		
-
+| Power plan mode |    Current   | AO temp (C)  | Images per second |
+| :-------------: | :----------: | :-----------:| :-----------------|
+|       1         |     2.5A     |      52      |         190       |
+|       0         |     6.0A     |      66      |         310       |   
+	
 Note to change power plan mode permanently: 
 
 sudo nano /etc/nvpmodel.conf		change PM_CONFIG DEFAULT to 1 (low power) or 0 (high power) 
