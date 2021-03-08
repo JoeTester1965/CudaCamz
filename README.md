@@ -12,22 +12,18 @@ All without selling your soul to GAFA  (I hope).
 
 Can record all incoming video as well in case something goes down.
 
-Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for concurrent live monitoring with something like VLC media player.
-
-If using cheap imported IP cameras, make sure you change the password and turn all the cloud stuff off with the configuration sofwtare.
-
-Some of that uses an IE active X control ...
+Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for concurrent live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
 
 You will need some basic Linux skills and a wee bit of time initially looking at the application output
-to weed out false positives. More advice given in the example config file config.txt.
+to weed out false positives. More advice given in the example configuration file.
 
-Samba is useful if you want to access events, images and videos as defined by the locations in your config.txt file on the Jetson from a PC, but I tend to use WinSCP.
+[Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
 ## Important note
 
-The fist time the program is run using start.sh in step 4. below, it will take five minutes of more for the AI model to be initially compiled.
+The fist time the program is run using start.sh in step 4. below, it will take five minutes of more for the AI model running on the GPUto be initially compiled.
  
-After that and on subsequent runs it will only take about thirty seconds to load from a cache.
+After that on subsequent runs it will only take about thirty seconds to load from a cache.
 
 Be patient!
 
@@ -35,11 +31,11 @@ Be patient!
 
 1. Put your camera URIs and sutiable image and video pathnames in config.txt
 
-2. bash ./install-depends.sh
+2. $ bash ./install-depends.sh
 
-3. python3 ./configure.py ./config.txt 
+3. $ python3 ./configure.py ./config.txt 
 
-4. bash ./start.sh
+4. $ bash ./start.sh
 
 5. Look at what you see in the images folders and logfiles and database (I use DBbrowser for SQLite) and tune config.txt to remove any false positives you get.
 
@@ -60,7 +56,7 @@ For all cameras
 
 Experiment - Four cameras attached at 720p, 20fps - Constant Bit Rate. Ambient temperature was 15C. No cooling. 
 
-Measured using [jtop](https://pypi.org/project/jetson-stats/)
+Measured using [jtop](https://pypi.org/project/jetson-stats/).
 
 | Power plan mode |    Current   | AO temp (C)  | Images per second |
 | :-------------: | :----------: | :-----------:| :-----------------|
@@ -69,8 +65,12 @@ Measured using [jtop](https://pypi.org/project/jetson-stats/)
 	
 Note to change power plan mode permanently: 
 
-sudo nano /etc/nvpmodel.conf		change PM_CONFIG DEFAULT to 1 (low power) or 0 (high power) 
-rm /var/lib/nvpmodel/status
+$ sudo nano /etc/nvpmodel.conf		
+
+[ change PM_CONFIG DEFAULT to 1 (low power) or 0 (high power) ] 
+
+$ rm /var/lib/nvpmodel/status
+
 reboot
 
 ## Example startup logfile
