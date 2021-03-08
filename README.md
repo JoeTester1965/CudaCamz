@@ -31,17 +31,19 @@ Be patient!
 
 ## Installing and running
 
-1. Put your camera URIs and sutiable image and video pathnames in config.txt
+Note that the script ./configure.py below creates start.sh and does other configuration stuff. You will need to re-run if cameras are added or image/video folders deleted.
+
+1. Put your camera URIs and sutiable image and video pathnames in [config.txt](./config.txt).
 
 2. $ bash ./install-depends.sh
 
-3. $ python3 ./configure.py ./config.txt 
+3. $ python3 ./configure.py ./config.txt
 
 4. $ bash ./start.sh
 
 5. Look at what you see in the images folders and logfiles and database (I use DBbrowser for SQLite) and tune config.txt to remove any false positives you get.
 
-6. Use ./start.sh to start and ./stop.sh to stop.
+6. Use $ ./start.sh to start and $ ./stop.sh to stop.
 
 ## Basic operational outline
 
