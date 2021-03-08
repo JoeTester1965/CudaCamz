@@ -18,7 +18,7 @@ You will need some basic Linux skills and a wee bit of time initially looking at
 
 This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [label_percent_screenfill_min], [label_mutelist] and [object_mutelist-] sections.
 
-1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed (above the given threshold, examine your logfiles and/or database to see what is coming in).
+1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed (above the given threshold), examine your logfiles and/or database to see what is coming in.
 
 2. [label_percent_screenfill_min] states that a given event should only be considered if its area is bigger than the given percentage relative to the image from the camera. Put this in as certain types of leaves in the garden had the AI saying all sorts!
 
