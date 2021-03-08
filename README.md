@@ -21,7 +21,7 @@ to weed out false positives. More advice given in the example configuration file
 
 ## Important note
 
-The fist time the program is run using start.sh in step 4. below, it will take five minutes or more for the AI model running on the GPUto be initially compiled.
+The fist time the program is run using start.sh in step 4. below, it will take five minutes or more for the AI model running on the GPU to be initially compiled.
  
 After that on subsequent runs it will only take about thirty seconds to load from a cache.
 
@@ -52,7 +52,7 @@ For all cameras
 					Alarm (MQTT and SMTP email)
 ```
 
-## Performance
+## Performance and power plans
 
 Experiment - Four cameras attached at 720p, 20fps - Constant Bit Rate. Ambient temperature was 15C. No cooling. 
 
@@ -63,7 +63,7 @@ Measured using [jtop](https://pypi.org/project/jetson-stats/).
 |       1         |     2.5A     |      52      |         190       |
 |       0         |     6.0A     |      66      |         310       |   
 	
-Note to change power plan mode permanently: 
+To change power plan mode on Jeton Nano permanently: 
 
 $ sudo nano /etc/nvpmodel.conf		
 
