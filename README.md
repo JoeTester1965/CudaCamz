@@ -20,9 +20,9 @@ This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [
 
 1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed (above the given threshold, examine your logfiles and/or database to see what is coming in).
 
-2. [label_percent_screenfill_min] states that a given event should only be considered if it is bigger thna the given percentage size of the image from the camera.
+2. [label_percent_screenfill_min] states that a given event should only be considered if its area is bigger than the given percentage relative to the image from the camera. Put this in as certain types of leaves in the garden had the AI saying all sorts!
 
-3. [label_mutelist] says that you are not interested in those period.
+3. [label_mutelist] says that you are not interested in those things (e.g. tennis rackets) period. Be prudent though, my favourite cat is often labelled as a bear, and not-so favourite cat a cow!
 
 4.  [object_mutelist-] is more subtle but very useful:
 
