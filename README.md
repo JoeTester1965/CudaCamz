@@ -8,7 +8,7 @@ The neighbourhood cats, dogs and other more interesting wildlife are now more tr
 
 CudaCam runs on a Nvidia Jetson Nano giving your home or small office a bespoke well-filtered AI camera event generator & recording appliance on a budget.
 
-All without selling your soul to GAFA  (I hope).
+All without selling your soul to GAFA.
 
 Can record all incoming video as well in case something goes down.
 
@@ -62,9 +62,9 @@ python3 ./configure.py ./config.txt
 For all cameras
 	Get a frame
 		Has any motion been detected in that frame ?
-			Are there any unfilered AI detection events in that frame ?
+			Are there any unfiltered AI detection events in that frame ?
 				Does any event in this frame meet any given alarm criteria ?
-					Alarm (MQTT and SMTP email)
+					Alarm (MQTT and SMTP email - as configured or not)
 ```
 
 ## Performance and power plans
@@ -84,7 +84,9 @@ To change power plan mode on Jetson Nano (and survive a reboot):
 sudo nano /etc/nvpmodel.conf
 ```
 
-*change PM_CONFIG DEFAULT at bottom of that file to 1 (low power) or 0 (high power)*
+*change PM_CONFIG DEFAULT at bottom of that file to **1** - **low** power or **0** - **high** power*
+
+then
 
 ```console
 rm /var/lib/nvpmodel/status
@@ -124,7 +126,7 @@ Use _outside **mute all events outside, but also encapsulating, this window** , 
 You alse get email and/or MQTT message for these (if configured) in [config.txt](./config.txt).
 
 ## Contributing
-Have moved on to the next thing, so is archived.
+Have moved on to the next thing, so will shortly archive.
 
 Please do email JoeTester1965 at mail dot com with any questions.
 
