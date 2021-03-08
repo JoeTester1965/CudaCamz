@@ -18,9 +18,9 @@ You will need some basic Linux skills and a wee bit of time initially looking at
 
 This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [label_percent_screenfill_min], [label_mutelist] and [object_mutelist-] sections.
 
-1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed (above the given threshold), examine your logfiles and/or database to see what is coming in.
+1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed (above the given threshold). Examine your logfiles and/or database to see what is coming in.
 
-2. [label_percent_screenfill_min] states that a given event should only be considered if its area is bigger than the given percentage relative to the image from the camera. Put this in as certain types of leaves in the garden had the AI saying all sorts!
+2. [label_percent_screenfill_min] states that a given event should only be considered if its area is bigger than the given percentage relative to the image from the camera. Put this option in as certain types of leaves in the garden had the AI saying all sorts!
 
 3. [label_mutelist] says that you are not interested in those things (e.g. tennis rackets) period. Be prudent though, my favourite cat is often labelled as a bear, and not-so favourite cat a cow!
 
@@ -36,7 +36,7 @@ This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [
 
 ![!](./example1-event.jpg "")
 
-You also get an email and/or MQTT message for these if [smtp] and/poe [mqtt] is configured in [config.txt](./config.txt). If you do not use them, just delete relevant section from the config fle.
+You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in [config.txt](./config.txt). If you do not use them, just delete relevant section from the config fle.
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
@@ -62,7 +62,7 @@ python3 ./configure.py ./config.txt
 bash ./start.sh
 ```
 
-2. Look at what you see in the images folders and logfiles and database (can use DBbrowser for SQLite) and tune config.txt to remove any false positives you get, then this to start and stop as needed:
+2. Look at what you see in the images folders and logfiles and sqlite database if you prefer then tune config.txt to remove any false positives you get, then this to start and stop as needed:
 
 ```console
 ./start.sh
