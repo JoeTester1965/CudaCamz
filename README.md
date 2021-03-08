@@ -15,7 +15,9 @@ Can record all incoming video as well in case something goes down.
 Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for concurrent live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
 
 You will need some basic Linux skills and a wee bit of time initially looking at the application output
-to weed out false positives. More advice given in the example configuration file.
+to weed out false positives. 
+
+More advice on this is given in the [example configuration file](./config.txt).
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
@@ -67,14 +69,14 @@ To change power plan mode on Jeton Nano permanently:
 
 $ sudo nano /etc/nvpmodel.conf		
 
-[ change PM_CONFIG DEFAULT to 1 (low power) or 0 (high power) ] 
+[ change PM_CONFIG DEFAULT at bottom of that file to 1 (low power) or 0 (high power) ] 
 
 $ rm /var/lib/nvpmodel/status
 
 reboot
 
 ## Example startup logfile
-```python
+```bash
 2021-03-08:19:19:43,355 INFO     [CudaCam.py:463] CudaCam started
 2021-03-08:19:19:43,356 INFO     [CudaCam.py:469] Remapped rtsp://192.168.1.10:554/user=admin&password=secret&channel=1&stream=0.sdp to rtsp://127.0.0.1:8554/front_garden as using_rtsp_simple_proxy set
 2021-03-08:19:19:43,356 INFO     [CudaCam.py:469] Remapped rtsp://192.168.1.12:554/user=admin&password=secret&channel=1&stream=0.sdp to rtsp://127.0.0.1:8554/back_garden as using_rtsp_simple_proxy set
@@ -89,13 +91,15 @@ reboot
 2021-03-08:19:21:25,969 INFO     [CudaCam.py:571] Processed 302 images in the past 10 seconds
 ```
 
-## Exampe  mutelist (see config.txt), Green = _inside, Red = _outside
+## Example  mutelist (see [config.txt](./config.txt) for details), Green = _inside, Red = _outside
 
-See example2-mutelist.jpg
+![!](./example2-mutelist.jpg "")
 
-## Example alarmed event (see config.txt). Alse get email and MQTT message if configured in config.txt.
+## Example alarmed event (see [config.txt](./config.txt) for details). 
 
-See example1-event.jpg
+![!](./example1-event.jpg "")
+
+You alse get email and/or MQTT message for these (if configured) in [config.txt](./config.txt).
 
 ## Contributing
 Have moved on to the next thing, have archived for forkz.
