@@ -21,7 +21,7 @@ to weed out false positives. More advice given in the example configuration file
 
 ## Important note
 
-The fist time the program is run using start.sh in step 4. below, it will take five minutes of more for the AI model running on the GPUto be initially compiled.
+The fist time the program is run using start.sh in step 4. below, it will take five minutes or more for the AI model running on the GPUto be initially compiled.
  
 After that on subsequent runs it will only take about thirty seconds to load from a cache.
 
