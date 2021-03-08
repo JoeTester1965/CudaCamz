@@ -16,7 +16,7 @@ Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-
 
 You will need some basic Linux skills and a wee bit of time initially looking at application output to prune false positives by tweaking the config file. 
 
-This is done by configuring [config.txt](./config.txt) in the [label_alarmlist] , [label_percent_screenfill_min], [label_mutelist] and [object_mutelist-] sections.
+This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [label_percent_screenfill_min], [label_mutelist] and [object_mutelist-] sections.
 
 1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed (above the given threshold, examine your logfiles and/or database to see what is coming in).
 
