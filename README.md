@@ -62,7 +62,7 @@ python3 ./configure.py ./config.txt
 bash ./start.sh
 ```
 
-2. Look at what you see in the images folders and logfiles and database (I use DBbrowser for SQLite) and tune config.txt to remove any false positives you get, then this to start and stop as needed:
+2. Look at what you see in the images folders and logfiles and database (can use DBbrowser for SQLite) and tune config.txt to remove any false positives you get, then this to start and stop as needed:
 
 ```console
 ./start.sh
