@@ -63,7 +63,7 @@ For all cameras
 	Get a frame
 		Has any motion been detected in that frame ?
 			Are there any unfilered AI detection events in that frame ?
-				Does any event in this frame meet any given alarm criteria?
+				Does any event in this frame meet any given alarm criteria ?
 					Alarm (MQTT and SMTP email)
 ```
 
@@ -80,13 +80,16 @@ Measured using [jtop](https://pypi.org/project/jetson-stats/).
 	
 To change power plan mode on Jetson Nano (and survive a reboot): 
 
-$ sudo nano /etc/nvpmodel.conf		
+```console
+sudo nano /etc/nvpmodel.conf
+```
 
 *change PM_CONFIG DEFAULT at bottom of that file to 1 (low power) or 0 (high power)*
 
-$ rm /var/lib/nvpmodel/status
-
-reboot
+```console
+rm /var/lib/nvpmodel/status
+sudo reboot
+```
 
 ## Example startup logfile
 ```bash
@@ -104,7 +107,13 @@ reboot
 2021-03-08:19:21:25,969 INFO     [CudaCam.py:571] Processed 302 images in the past 10 seconds
 ```
 
-## Example  mutelist (see [config.txt](./config.txt) for details), Green = _inside, Red = _outside
+## Example of some fine-grained detection area filtering
+
+See [config.txt](./config.txt) for more details on how to set these up.
+
+Use _inside **mute all events inside this window** , (green in image below) for small things in frame that constantly generate false positives. For me that was a potted plant out front (came up as person at night) and a hosereel out back (again sometimes came up us a person depending on the light)
+
+Use _outside **mute all events outside, but also encapsulating, this window** ,  (red in image belo) for large things in frame again generating false positives. For me, my front hedge became a dog as the sun began to set!
 
 ![!](./example2-mutelist.jpg "")
 
