@@ -36,7 +36,7 @@ This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [
 
 ![!](./example1-event.jpg "")
 
-You also get an email and/or MQTT message for these (if configured) in [config.txt](./config.txt).
+You also get an email and/or MQTT message for these if [smtp] and/poe [mqtt] is configured in [config.txt](./config.txt). If you do not use them, just delete relevant section from the config fle.
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
