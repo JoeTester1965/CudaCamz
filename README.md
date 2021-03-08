@@ -12,7 +12,7 @@ All without selling your soul to GAFA  (I hope).
 
 Can record all incoming video as well in case something goes down.
 
-Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for live monitoring as well with something like VLC media player.
+Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for concurrent live monitoring with something like VLC media player.
 
 If using cheap imported IP cameras, make sure you change the password and turn all the cloud stuff off with the configuration sofwtare.
 
