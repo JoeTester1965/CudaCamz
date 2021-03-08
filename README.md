@@ -31,19 +31,30 @@ Be patient!
 
 ## Installing and running
 
-Note that the script ./configure.py below creates start.sh and does other configuration stuff. You will need to re-run if cameras are added or image/video folders deleted.
+Note that the script ./configure.py below creates start.sh and does other configuration work as well. You will need to re-run if cameras are added and/or image/video folders deleted.
 
-1. Put your camera URIs and sutiable image and video pathnames in [config.txt](./config.txt).
+1. Put your camera URIs and image / video storage pathnames in [config.txt](./config.txt), then:
 
-2. $ bash ./install-depends.sh
+```console
+bash ./install-depends.sh
 
-3. $ python3 ./configure.py ./config.txt
+python3 ./configure.py ./config.txt
 
-4. $ bash ./start.sh
+bash ./start.sh
+```
 
-5. Look at what you see in the images folders and logfiles and database (I use DBbrowser for SQLite) and tune config.txt to remove any false positives you get.
+2. Look at what you see in the images folders and logfiles and database (I use DBbrowser for SQLite) and tune config.txt to remove any false positives you get, then this to start and stop as needed:
 
-6. Use $ ./start.sh to start and $ ./stop.sh to stop.
+```console
+./start.sh
+
+./stop.sh
+```
+
+3. If you delete an image / video folder and/or add / delete a camera, stuff will need reconfigured again:
+```console
+python3 ./configure.py ./config.txt
+```
 
 ## Basic operational outline
 
@@ -71,7 +82,7 @@ To change power plan mode on Jetson Nano (and survive a reboot):
 
 $ sudo nano /etc/nvpmodel.conf		
 
-[ change PM_CONFIG DEFAULT at bottom of that file to 1 (low power) or 0 (high power) ] 
+*change PM_CONFIG DEFAULT at bottom of that file to 1 (low power) or 0 (high power)*
 
 $ rm /var/lib/nvpmodel/status
 
