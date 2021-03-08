@@ -4,7 +4,7 @@ Inspired by  https://github.com/dusty-nv/jetson-inference/
 
 Did this as a lockdown project.
 
-The neighbourhood cats, dogz and other more interesting wildlife are now more transparent ...
+The neighbourhood cats, dogs and other more interesting wildlife are now more transparent.
 
 CudaCam runs on a Nvidia Jetson Nano giving your home or small office a bespoke well-filtered AI camera event generator & recording appliance on a budget.
 
@@ -23,7 +23,7 @@ More advice on this is given in the [example configuration file](./config.txt).
 
 ## Important note
 
-The fist time the program is run using start.sh in step 4. below, it will take five minutes or more for the AI model running on the GPU to be initially compiled.
+The first time CudaCam is run using start.sh in step 4. below, it will take five minutes or more for the AI model running on the GPU to be initially compiled.
  
 After that on subsequent runs it will only take about thirty seconds to load from a cache.
 
@@ -67,7 +67,7 @@ Measured using [jtop](https://pypi.org/project/jetson-stats/).
 |       1         |     2.5A     |      52      |         190       |
 |       0         |     6.0A     |      66      |         310       |   
 	
-To change power plan mode on Jeton Nano permanently: 
+To change power plan mode on Jetson Nano (and survive a reboot): 
 
 $ sudo nano /etc/nvpmodel.conf		
 
@@ -104,9 +104,9 @@ reboot
 You alse get email and/or MQTT message for these (if configured) in [config.txt](./config.txt).
 
 ## Contributing
-Have moved on to the next thing, have archived for forkz.
+Have moved on to the next thing, so is archived.
 
-email JoeTester1965 at mail dot com with any questions.
+Please do email JoeTester1965 at mail dot com with any questions.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
