@@ -1,0 +1,134 @@
+[cameras]
+
+# friendly-name, type, uri
+# types can be : h264 | h265 | vp8 | vp9 | mpeg2 | mpeg4 | mjpeg as defined by Nvidia APIS.
+
+ThisCamera,h264 = rtsp://192.168.1.10:554/user=username&password=12345&channel=1&stream=0.sdp
+ThatCamera,h265 = rtsp://192.168.1.53:8554/ThatUri
+
+[general]
+
+# Set to 0 for more less detail in the logfile after you are happy with your config file
+logging_level_debug = 1
+
+# Set the paths for images and video below to what works for you on your jetson nano
+# Recommend using a usb3 hdd with samba installed and configured to see files on your network
+# Note that x_storage_dir_percent is percentage of total disk allocated2uni
+
+logfile = /tmp/logfile.txt
+
+image_storage_dir = /tmp/images/
+image_storage_dir_percent = 10
+mutelist_reminder_folder = /tmp/mutelist_reminder
+
+video_storage_dir = /tmp/videos/
+video_storage_dir_percent = 60
+video_storage_slice_minutes = 60
+
+# Do not use this yet, but could be useful for producing fancy stats
+sqlite_db = /tmp/database.db
+
+# Nvidia wrapper returns an index, not label name from AI model used, have copied here, 
+# you may want to point to installed file in case it changes (but I doubt it).
+label_filename = ./ssd_coco_labels.txt
+
+# This seems to work ok as a golbal baseline, can tune up or down but be mindful of [label_alarmlist]
+baseline_model_confidence = 0.5
+
+# This stops too many repeat alarms when someone or something is fidgeting around
+time_to_ignore_repeating_object_seconds = 60
+bounding_box_fraction_for_repeating_object = 0.1
+
+# Recommend using this, having multiple streams for video recording, AI event sensing (done here)
+# and live monitoring (I use vlc) can overwhelm your cameras and or network. 
+# The remapped URI for your cameras is logged on startup.
+
+using_rtsp_simple_proxy = 1
+
+# Give the Nvidia API sensible timeouts to capture an image when starting up and then in operation.
+
+camera_down_timeout_ms = 200
+camera_starting_up_timeout = 5
+
+# No need for AI with images that are too large, this works well with 720p input
+ai_resize_factor = 0.5
+
+# Log basic stats (e.g. number of frames being processed) every n seconds
+stats_update_seconds = 10
+
+[motion_detect_settings]
+motion_resize_factor = 0.25
+
+# For motion detection, want to resample ai_resize_factor down yet again for both performance and efficacy.
+
+# If you have only a small number of cameras and are able to keep up with a high camera frame rate 
+# you may want to increase this to 2 or 3 so that a frame is compared with a slightly older one
+# than the previous look for motion detection. Probably not necessary but having a framebuffer leaves
+# scope for cleverer detection stuff in future. Am mulling creating pseudo frames with motion matrix
+# and detection objects convolved, tagged and combined.
+
+frame_check_delta = 1
+
+# Difference between pixels (0-255) greyscale to count as a valid difference
+movement_delta_threshold = 5
+
+# % of frame that needs a valid difference for motion detect to be triggered, frame then passed on for AI event detection.
+movement_hits_threshold_percent = 5.0 
+
+# Alarm - (MQTT and SMTP as defined at bottom of this file) for these labels above given threshold
+[label_alarmlist]
+person = 0.60
+cat = 0.60
+
+# Only alarm these from ssd_coco_labels.txt if a certain size or above, weed out the false positives!
+[label_percent_screenfill_min]
+person = 7
+
+# labels not to alarm from ssd_coco_labels.txt, weed out the false positives!
+[label_mutelist]
+labels = bed,chair
+
+#
+# Fancier, but neccecary finer weeding out of false positives.
+#
+# Use _inside for small things in frame that constantly generate false positives.
+# For me that was a potted plant out front (came up as person at night) and a 
+# hosereel out back (again sometimes came up us a person depending on the light).
+#
+# Use _outside for large things in frame again generating false positives. 
+# For me, my front hedge became a dog as the sun began to set!
+#
+#  Note: in object_mutelists below use left,right,top,bottom to define a window
+#  (0,0) is top left i.e. (left, top) across and down to (right, bottom)
+#  The scale of these co-ordinates will be your camera image and width * ai_resize_factor.
+#  
+#
+#  Naming : object_mutelist_{inside|outside}-{camera name}
+#
+#  _inside		mute all events inside this window
+#  _outside		mute all events outside, but also encapsulating,  this window 
+#
+#  When CudaCam starts up, snapshot images are places in mutelist_reminder_folder
+#   so you can check if windows are what you expect. Green = _inside, Red = _outside
+
+[object_mutelist_inside-front_garden]
+big pot = 0,175,0,300
+
+[object_mutelist_outside-front_garden]
+hedge = 100,550,50,250
+
+[object_mutelist_inside-back_garden]
+hose&reel = 475,575,125,300
+
+# Look up on Google if you want to install a MQTT server on your Jetson (is simplez), or use another!
+[mqtt]
+mqtt_ip_address = 127.0.0.1
+mqtt_username = username
+mqtt_password = password
+mqtt_topic = CudaCam
+
+# Reccomend using a disposable email address for this sort thing, as is a low security option!
+[smtp]
+sender_email = thisemail@whatever.com
+receiver_email = thatemail@whoever.com
+smtp_password = 12345
