@@ -14,10 +14,29 @@ Can record all incoming video as well in case something goes down.
 
 Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for concurrent live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
 
-You will need some basic Linux skills and a wee bit of time initially looking at the application output
-to weed out false positives. 
+You will need some basic Linux skills and a wee bit of time initially looking at application output to prune false positives by tweaking the config file. 
 
-More advice on this is given in the [example configuration file](./config.txt).
+This is done by configuring [config.txt](./config.txt) in the [label_alarmlist] , [label_percent_screenfill_min], [label_mutelist] and [object_mutelist-] sections.
+
+1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed (above the given threshold, examine your logfiles and/or database to see what is coming in).
+
+2. [label_percent_screenfill_min] states that a given event should only be considered if it is bigger thna the given percentage size of the image from the camera.
+
+3. [label_mutelist] says that you are not interested in those period.
+
+4.  [object_mutelist-] is more subtle but very useful:
+
+Use _inside-cameraname (**mute all events inside a defined area**) , for small things that repeatably generate false positives. For me that was a potted plant out front which AI said was a person at night.
+
+Use _outside-cameraname (**mute all events outside, but also encapsulating, a defined area**) , for large things that do the same. For me, my front hedge became a dog as the sun began to set!
+
+![!](./example2-mutelist.jpg "")
+
+## Example alarmed event
+
+![!](./example1-event.jpg "")
+
+You also get email and/or MQTT message for these (if configured) in [config.txt](./config.txt).
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
@@ -108,22 +127,6 @@ sudo reboot
 2021-03-08:19:21:25,760 INFO     [CudaCam.py:657] Event 'Has moved' : front_garden - person, confidence 0.84 : 220,314,3,245
 2021-03-08:19:21:25,969 INFO     [CudaCam.py:571] Processed 302 images in the past 10 seconds
 ```
-
-## Example of some fine-grained detection area filtering
-
-See [config.txt](./config.txt) for more details on how to set these up.
-
-Use _inside **mute all events inside this window** , (green in image below) for small things in frame that constantly generate false positives. For me that was a potted plant out front (came up as person at night) and a hosereel out back (again sometimes came up us a person depending on the light)
-
-Use _outside **mute all events outside, but also encapsulating, this window** ,  (red in image belo) for large things in frame again generating false positives. For me, my front hedge became a dog as the sun began to set!
-
-![!](./example2-mutelist.jpg "")
-
-## Example alarmed event (see [config.txt](./config.txt) for details). 
-
-![!](./example1-event.jpg "")
-
-You alse get email and/or MQTT message for these (if configured) in [config.txt](./config.txt).
 
 ## Contributing
 Have moved on to the next thing, so will shortly archive.
