@@ -12,7 +12,7 @@ Can record all incoming video as well in case something goes down.
 
 Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) so that you can do the above and also live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
 
-You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./config.txt)
+You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./config.txt):
 
 1. **[label_alarmlist]** sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given confidence threshold. Examine your logfiles and/or database to see what is coming in.
 
@@ -32,7 +32,7 @@ You will need some basic Linux skills and a bit of time looking at initial appli
 
 ![!](./example1-event.jpg "")
 
-You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in [config.txt](./config.txt). If you do not use any of these, just delete relevant section from the config fle.
+You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in the [configuration file](./config.txt). If you do not use, just delete those sections from the config fle.
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
@@ -46,7 +46,7 @@ Be patient!
 
 ## Installing and running
 
-Note that the script ./configure.py below creates start.sh and does other configuration work as well. You will need to re-run if cameras are added and/or image/video folders deleted.
+Note that the script ./configure.py below creates **start.sh** and does other configuration work as well. You will need to re-run if cameras are added and/or image/video folders deleted.
 
 1. Put your camera URIs and image / video storage pathnames in the [configuration file](./config.txt), then:
 
@@ -68,7 +68,7 @@ bash ./start.sh
 ./stop.sh
 ```
 
-3. If you delete an image / video folder and/or add / delete a camera, stuff will need reconfigured again:
+3. If you delete an image or video folder, or add or delete a camera, things will need reconfigured again:
 ```console
 python3 ./configure.py ./config.txt
 ```
@@ -86,7 +86,7 @@ For all cameras
 
 ## Performance and power plans
 
-Experiment - Four cameras attached at 720p, 20fps - Constant Bit Rate. Ambient temperature was 15C. No cooling. ai_resize_factor = 0.5.
+Four cameras attached at 720p, 20fps - Constant Bit Rate. Ambient temperature was 15C. No cooling. ai_resize_factor = 0.5.
 
 Measured using [jtop](https://pypi.org/project/jetson-stats/).
 
@@ -95,7 +95,7 @@ Measured using [jtop](https://pypi.org/project/jetson-stats/).
 |       1         |     2.5A     |      52      |         190       |
 |       0         |     6.0A     |      66      |         310       |   
 	
-To change power plan mode on Jetson Nano (and survive a reboot): 
+To change power plan mode on the Jetson Nano (and survive a reboot): 
 
 ```console
 sudo nano /etc/nvpmodel.conf
