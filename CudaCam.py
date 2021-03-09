@@ -165,8 +165,7 @@ def test_event_needs_filtered(camera, eventclass, left, right, top, bottom, perc
 		return eventclass
 
 	try:
-		label_percent_screenfill_min = float(label_percent_screenfill_min[eventclass])
-		if percent_screenfill < float(label_percent_screenfill_min):
+		if percent_screenfill < float(label_percent_screenfill_min[eventclass]):
 			return "percent_screenfill"
 	except:
 		pass
