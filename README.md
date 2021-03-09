@@ -34,7 +34,7 @@ You will need some basic Linux skills and a bit of time looking at initial appli
 
 ![!](./example1-event.jpg "")
 
-You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in the [configuration file](./config.txt). If you do not use, just delete those sections from the config fle.
+You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in the [configuration file](./config.txt). If you do not use, just delete those sections.
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
