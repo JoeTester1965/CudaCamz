@@ -57,9 +57,9 @@ ai_resize_factor = 0.5
 stats_update_seconds = 10
 
 [motion_detect_settings]
-motion_resize_factor = 0.25
 
 # For motion detection, want to resample ai_resize_factor down yet again for both performance and efficacy.
+motion_resize_factor = 0.25
 
 # If you have only a small number of cameras and are able to keep up with a high camera frame rate 
 # you may want to increase this to 2 or 3 so that a frame is compared with a slightly older one
