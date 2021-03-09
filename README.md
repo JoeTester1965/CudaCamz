@@ -8,23 +8,19 @@ The neighbourhood cats, dogs and other more interesting wildlife are now more tr
 
 CudaCam runs on a Nvidia Jetson Nano giving your home or small office a bespoke well-filtered AI camera event generator & recording appliance on a budget.
 
-All without selling your soul to GAFA.
-
 Can record all incoming video as well in case something goes down.
 
-Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for concurrent live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
+Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for this app, recording video and concurrent live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
 
-You will need some basic Linux skills and a wee bit of time initially looking at application output to prune false positives by tweaking the config file. 
+You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./config.txt)
 
-This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [label_percent_screenfill_min], [label_mutelist] and [object_mutelist-] sections.
+1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given confidence threshold. Examine your logfiles and/or database to see what is coming in.
 
-1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed (above the given threshold). Examine your logfiles and/or database to see what is coming in.
-
-2. [label_percent_screenfill_min] states that a given event should only be considered if its area is bigger than the given percentage relative to the image from the camera. Put this option in as certain types of leaves in the garden had the AI saying all sorts!
+2. [label_percent_screenfill_min] states that a given event should only be considered if its percetage image area size is bigger than that given. I put this option in as certain types of leaves in the garden had the AI saying all sorts.
 
 3. [label_mutelist] says that you are not interested in those things (e.g. tennis rackets) period. Be prudent though, my favourite cat is often labelled as a bear, and not-so favourite cat a cow!
 
-4.  [object_mutelist-] is more subtle but very useful:
+4. [object_mutelist-] defines per camera areas where events are muted:
 
 	 _inside-cameraname (**mute all events inside a defined area**) : use for small things that repeatably generate false positives. For me that was a potted plant out front which AI said was a person at night.
 
@@ -36,7 +32,7 @@ This is done by tweaking [config.txt](./config.txt) in the [label_alarmlist] , [
 
 ![!](./example1-event.jpg "")
 
-You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in [config.txt](./config.txt). If you do not use them, just delete relevant section from the config fle.
+You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in [config.txt](./config.txt). If you do not use any of these, just delete relevant section from the config fle.
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
@@ -52,7 +48,7 @@ Be patient!
 
 Note that the script ./configure.py below creates start.sh and does other configuration work as well. You will need to re-run if cameras are added and/or image/video folders deleted.
 
-1. Put your camera URIs and image / video storage pathnames in [config.txt](./config.txt), then:
+1. Put your camera URIs and image / video storage pathnames in the [configuration file](./config.txt), then:
 
 ```console
 bash ./install-depends.sh
@@ -62,7 +58,9 @@ python3 ./configure.py ./config.txt
 bash ./start.sh
 ```
 
-2. Look at what you see in the images folders and logfiles and sqlite database if you prefer then tune config.txt to remove any false positives you get, then this to start and stop as needed:
+2. Examine the images folder / logfiles or sqlite database then tune the [configuration file](./config.txt) to remove any false positives you get.
+
+3. The use this to start and stop CudaCam:
 
 ```console
 ./start.sh
@@ -88,7 +86,7 @@ For all cameras
 
 ## Performance and power plans
 
-Experiment - Four cameras attached at 720p, 20fps - Constant Bit Rate. Ambient temperature was 15C. No cooling. 
+Experiment - Four cameras attached at 720p, 20fps - Constant Bit Rate. Ambient temperature was 15C. No cooling. ai_resize_factor = 0.5.
 
 Measured using [jtop](https://pypi.org/project/jetson-stats/).
 
