@@ -21,6 +21,7 @@ if [ ! -d "$FOLDER" ] ; then
 
 fi
 cd "$FOLDER"
+git submodule update --init
 git pull
 
 FOLDER="build"
@@ -40,6 +41,7 @@ if [ ! -d "$FOLDER" ] ; then
 	git clone $URL
 fi
 cd "$FOLDER"
+git submodule update --init
 git pull
 
 FOLDER="build"
