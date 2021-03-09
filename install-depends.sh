@@ -21,6 +21,7 @@ if [ ! -d "$FOLDER" ] ; then
 
 fi
 cd "$FOLDER"
+git pull
 
 FOLDER="build"
 if [ ! -d "$FOLDER" ] ; then
@@ -39,6 +40,7 @@ if [ ! -d "$FOLDER" ] ; then
 	git clone $URL
 fi
 cd "$FOLDER"
+git pull
 
 FOLDER="build"
 if [ ! -d "$FOLDER" ] ; then
