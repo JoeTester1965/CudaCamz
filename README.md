@@ -6,7 +6,7 @@ Did this as a lockdown project.
 
 The neighbourhood cats, dogs and other more interesting wildlife are now more transparent.
 
-CudaCam runs on a Nvidia Jetson Nano giving your home or small office a bespoke well-filtered AI camera event generator & recording appliance on a budget.
+CudaCam runs on a Nvidia Jetson Nano giving your home or small office a bespoke meaningfully-filtered AI camera event generator on a budget.
 
 Can record all incoming video as well in case something goes down.
 
