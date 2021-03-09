@@ -54,7 +54,7 @@ camera_starting_up_timeout = 5
 ai_resize_factor = 0.5
 
 # Log basic stats (e.g. number of frames being processed) every n seconds
-stats_update_seconds = 10
+stats_update_seconds = 60
 
 [motion_detect_settings]
 
