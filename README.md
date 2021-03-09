@@ -14,17 +14,17 @@ Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-
 
 You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./config.txt)
 
-1. [label_alarmlist] sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given confidence threshold. Examine your logfiles and/or database to see what is coming in.
+1. **[label_alarmlist]** sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given confidence threshold. Examine your logfiles and/or database to see what is coming in.
 
-2. [label_percent_screenfill_min] states that a given event should only be considered if its percetage image area size is bigger than that given. I put this option in as certain types of leaves in the garden had the AI saying all sorts.
+2. **[label_percent_screenfill_min]** states that a given event should only be considered if its percetage image area size is bigger than that given. I put this option in as certain types of leaves in the garden had the AI saying all sorts.
 
-3. [label_mutelist] says that you are not interested in those things (e.g. tennis rackets) period. Be prudent though, my favourite cat is often labelled as a bear, and not-so favourite cat a cow!
+3. **[label_mutelist]** says that you are not interested in those things (e.g. tennis rackets) period. Be prudent though, my favourite cat is often labelled as a bear, and not-so favourite cat a cow!
 
 4. [object_mutelist-] defines per camera areas where events are muted:
 
-	 _inside-cameraname (**mute all events inside a defined area**) : use for small things that repeatably generate false positives. For me that was a potted plant out front which AI said was a person at night.
+	**_inside-cameraname** (mute all events inside a defined area) : use for small things that repeatably generate false positives. For me that was a potted plant out front which AI said was a person at night.
 
-	_outside-cameraname (**mute all events outside, but also encapsulating, a defined area**) : use for large things that do the same. For me, my front hedge became a dog as the sun began to set!
+	**_outside-cameraname** (mute all events outside, but also encapsulating, a defined area) : use for large things that do the same. For me, my front hedge became a dog as the sun began to set!
 
 ![!](./example2-mutelist.jpg "")
 
