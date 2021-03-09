@@ -20,7 +20,7 @@ You will need some basic Linux skills and a bit of time looking at initial appli
 
 3. **[label_mutelist]** says that you are not interested in those things (e.g. tennis rackets) period. Be prudent though, my favourite cat is often labelled as a bear, and not-so favourite cat a cow!
 
-4. [object_mutelist-] defines per camera areas where events are muted:
+4. **[object_mutelist-]** defines per camera areas where events are muted:
 
 	**_inside-cameraname** (mute all events inside a defined area) : use for small things that repeatably generate false positives. For me that was a potted plant out front which AI said was a person at night.
 
