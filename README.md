@@ -10,7 +10,7 @@ CudaCam runs on a Nvidia Jetson Nano giving your home or small office a bespoke 
 
 Can record all incoming video as well in case something goes down.
 
-Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for this app, recording video and concurrent live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
+Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) for the AI stuff, recording video and concurrent live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
 
 You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./config.txt)
 
