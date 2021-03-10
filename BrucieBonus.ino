@@ -1,5 +1,5 @@
 //
-// Will need an Arduino IDE, esp6266, an 8x8 ws2312b matrix and a bit of solder to hand
+// Will need an Arduino IDE, esp8266, an 8x8 ws2312b matrix and a bit of solder to hand
 //
 
 #include <gamma.h>
