@@ -62,7 +62,7 @@ bash ./start.sh
 
 2. Examine the images folder / logfiles or sqlite database then tune the [configuration file](./config.txt) to remove any false positives you get.
 
-3. The use this to start and stop CudaCam:
+3. Then use this to start and stop CudaCam:
 
 ```console
 ./start.sh
