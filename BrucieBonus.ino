@@ -55,7 +55,6 @@ struct message_q* queue;
 
 struct message_q* list_initialise(void);
 struct message_in_q* manage_list(struct message_q* list);
-
 void add_to_list(struct message_q* list, byte* data, uint64_t flags, unsigned int length);
 
 void callback(char* topic, byte* payload, unsigned int length) 
