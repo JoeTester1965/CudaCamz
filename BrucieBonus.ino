@@ -207,5 +207,4 @@ void loop()
         Serial.printf("Have a MQTT message to display -> %s\n", &message->message[0]);
         scrollText((char*)&message->message[0], matrix.Color(0, 0, 255));
     }
-
 }
