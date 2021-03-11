@@ -82,7 +82,7 @@ cat = 0.60
 
 # Only alarm these from ssd_coco_labels.txt if a certain size or above, weed out the false positives!
 [label_percent_screenfill_min]
-person = 7
+person = 2
 
 # labels not to alarm from ssd_coco_labels.txt, weed out the false positives!
 [label_mutelist]
