@@ -403,8 +403,8 @@ def GetBestDetection(camera, detections, detection_image_size):
 		needs_filtered_reason  = test_event_needs_filtered(camera, eventclass, left, right, top, bottom, percent_screenfill)
 
 		if needs_filtered_reason:
-			logger.debug("Filtered out event reason '%s' , alarmed %d : %s-%s:%.2f %d,%d,%d,%d", 
-								needs_filtered_reason, needs_alarmed, camera, eventclass, confidence, left, right, top, bottom)
+			logger.debug("TESTING WOULD HAVE Filtered out event reason '%s', %s-%s : %.2f %d,%d,%d,%d", 
+								needs_filtered_reason, camera, eventclass, confidence, left, right, top, bottom)
 			continue
 
 		if not best_unfiltered_detection:
@@ -413,7 +413,7 @@ def GetBestDetection(camera, detections, detection_image_size):
 		needs_alarmed = test_event_needs_alarmed(confidence, eventclass)
 
 		if needs_alarmed:
-			# a detection event needs alaramed so take that one without lookign any further
+			# a detection event needs alarmed so take that one without looking any further
 			return best_unfiltered_detection
 
 		if not best_unfiltered_detection:
@@ -424,7 +424,7 @@ def GetBestDetection(camera, detections, detection_image_size):
 
 	return best_unfiltered_detection
 
-def check_cameras():
+def check_cameras_on_startup():
 	for camera, jetson_videoSource in rtsp_streams.items():
 		try:
 			height = jetson_videoSource.GetHeight()
@@ -433,6 +433,14 @@ def check_cameras():
 				rtsp_streams[camera] = None
 		except:
 			pass
+
+	number_of_cameras_up = 0
+	for camera in rtsp_streams:
+		if rtsp_streams[camera] is not None:
+			number_of_cameras_up = number_of_cameras_up + 1
+	if number_of_cameras_up == 0:
+		logger.critical("No cameras are operational after inspection on startup, may as well shut down.")
+		raise SystemExit
 	return
 
 # Initialisation
@@ -556,15 +564,14 @@ for name, jetson_videoSource in rtsp_streams.items():
 	except:
 		pass
 
-# Remove cameras that do not come up
+# Remove cameras that do not come up on startup
 
-check_cameras()
+check_cameras_on_startup()
 
 # Main loop
 
 while True:
 	if StatsTimeoutCheck.expired():
-		check_cameras()
 		logger.info("Processed %d images in the past %d seconds",images_processed, stats_update_seconds)
 		images_processed = 0
 		for camera, jetson_videoSource in rtsp_streams.items():
@@ -576,87 +583,100 @@ while True:
 	for camera, jetson_videoSource in rtsp_streams.items():
 		try:
 			image = jetson_videoSource.Capture(format='rgb8', timeout = camera_down_timeout_ms)
+		except:
+			logger.debug("Timeout in getting image from %s", camera)
+			try:
+				if not jetson_videoSource.IsStreaming():
+					logger.error("Camera %s is not up, removing.", camera)
+					rtsp_streams[camera] = None
+					number_of_cameras_up = 0
+					for camera in rtsp_streams:
+						if rtsp_streams[camera] is not None:
+							number_of_cameras_up = number_of_cameras_up + 1
+					if number_of_cameras_up == 0:
+						logger.critical("No cameras are operational, have called helpdesk, they suggest trying a reboot")
+						raise SystemExit
+			except:
+				pass
+			continue
 
-			images_processed = images_processed + 1
+		images_processed = images_processed + 1
 
-			resized_image = jetson.utils.cudaAllocMapped(	width=int(image.width * ai_resize_factor),
+		resized_image = jetson.utils.cudaAllocMapped(	width=int(image.width * ai_resize_factor),
 															height=int(image.height * ai_resize_factor),
 															format=image.format)
 
-			jetson.utils.cudaResize(image, resized_image)
-			jetson.utils.cudaDeviceSynchronize()
+		jetson.utils.cudaResize(image, resized_image)
+		jetson.utils.cudaDeviceSynchronize()
 
-			movement = is_motion_detected(camera, resized_image)
+		movement = is_motion_detected(camera, resized_image)
 
-			if movement:
+		if movement:
 
-				logger.debug("Got movement value %.2f percent from %s", movement, camera)
+			logger.debug("Got movement value %.2f percent from %s", movement, camera)
 
-				detections = net.Detect(resized_image, resized_image.width, resized_image.height, 'box,labels,conf')	
+			detections = net.Detect(resized_image, resized_image.width, resized_image.height, 'box,labels,conf')	
 					
-				best_unfiltered_detection =	GetBestDetection(camera, detections, resized_image.size)
+			best_unfiltered_detection =	GetBestDetection(camera, detections, resized_image.size)
 				
-				if best_unfiltered_detection:	
+			if best_unfiltered_detection:	
 
-					detected_class	= int(best_unfiltered_detection.ClassID)
-					eventclass		= label_name_index_array[detected_class]
-					confidence		= round(best_unfiltered_detection.Confidence, 2)
-					left			= int(best_unfiltered_detection.Left)
-					right			= int(best_unfiltered_detection.Right)
-					top				= int(best_unfiltered_detection.Top)		
-					bottom			= int(best_unfiltered_detection.Bottom)
+				detected_class	= int(best_unfiltered_detection.ClassID)
+				eventclass		= label_name_index_array[detected_class]
+				confidence		= round(best_unfiltered_detection.Confidence, 2)
+				left			= int(best_unfiltered_detection.Left)
+				right			= int(best_unfiltered_detection.Right)
+				top				= int(best_unfiltered_detection.Top)		
+				bottom			= int(best_unfiltered_detection.Bottom)
 
-					if not camera+eventclass in event_state_filter:
-						event_state_filter[camera+eventclass] = StatefulEventFilter(left, right, top, bottom)
+				if not camera+eventclass in event_state_filter:
+					event_state_filter[camera+eventclass] = StatefulEventFilter(left, right, top, bottom)
 					
-					can_use_event, can_use_event_message = event_state_filter[camera+eventclass].filtered(left, right, top, bottom) 
+				can_use_event, can_use_event_message = event_state_filter[camera+eventclass].filtered(left, right, top, bottom) 
 
-					if can_use_event:
+				if can_use_event:
 		
-						timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S-%f")
-						image_path = image_storage_dir + camera + "/"				
-						image_filename	= timestamp + ".jpg"	
+					timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S-%f")
+					image_path = image_storage_dir + camera + "/"				
+					image_filename	= timestamp + ".jpg"	
 			
-						new_image_filename = image_filename.split('-', 3)[-1] 
-						split = image_filename.split('-', 3)
-						image_filename_before_date  = split[0] + "-" + split[1] + "-" + split[2] 
-						new_image_path =  image_path +  image_filename_before_date + "/"
+					new_image_filename = image_filename.split('-', 3)[-1] 
+					split = image_filename.split('-', 3)
+					image_filename_before_date  = split[0] + "-" + split[1] + "-" + split[2] 
+					new_image_path =  image_path +  image_filename_before_date + "/"
 
-						needs_alarmed = test_event_needs_alarmed(confidence, eventclass)
+					needs_alarmed = test_event_needs_alarmed(confidence, eventclass)
 
-						if not needs_alarmed:		
-							new_image_path = new_image_path + "not_alarmed/"
+					if not needs_alarmed:		
+						new_image_path = new_image_path + "not_alarmed/"
 	
-						image_location = new_image_path + new_image_filename
+					image_location = new_image_path + new_image_filename
 
-						os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
+					os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
 
-						jetson.utils.saveImageRGBA(image_location, resized_image, resized_image.width, resized_image.height)
-						jetson.utils.cudaDeviceSynchronize()
+					jetson.utils.saveImageRGBA(image_location, resized_image, resized_image.width, resized_image.height)
+					jetson.utils.cudaDeviceSynchronize()
 				
-						sqlite_cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?,?,?)" , 
-								(camera, timestamp, eventclass , confidence, needs_alarmed,  
-									left, right, top, bottom, image_location))
+					sqlite_cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?,?,?)" , 
+							(camera, timestamp, eventclass , confidence, needs_alarmed,  
+								left, right, top, bottom, image_location))
 
-						sqlite_connection.commit()
+					sqlite_connection.commit()
 
-						if needs_alarmed:
+					if needs_alarmed:
 							
-							message_needs_alarmed = camera + " : " + eventclass
+						message_needs_alarmed = camera + " : " + eventclass
 
-							if config.has_section("mqtt"):
-								mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
+						if config.has_section("mqtt"):
+							mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
 
-							if config.has_section("smtp"):
-								send_smtp_message(camera, eventclass, image_location)
+						if config.has_section("smtp"):
+							send_smtp_message(camera, eventclass, image_location)
 
-						logger.info("Event '%s' : %s - %s, confidence %.2f : %d,%d,%d,%d", 
-										can_use_event_message, camera, eventclass, confidence, left, right, top, bottom)	
-					else:
-						logger.debug("Filtered out event in StatefulEventFilter reason '%s', alarmed %d : %s - %s:%.2f %d,%d,%d,%d", 
-									can_use_event_message, needs_alarmed, camera, eventclass, confidence, left, right, top, bottom)		
+					logger.info("Event '%s' : %s - %s, confidence %.2f : %d,%d,%d,%d", 
+									can_use_event_message, camera, eventclass, confidence, left, right, top, bottom)	
+				else:
+					logger.debug("Filtered out event in StatefulEventFilter reason '%s', alarmed %d : %s - %s:%.2f %d,%d,%d,%d", 
+								can_use_event_message, needs_alarmed, camera, eventclass, confidence, left, right, top, bottom)		
 
-			del resized_image
-
-		except:
-			logger.debug("Timeout in getting image from %s", camera)
+		del resized_image
