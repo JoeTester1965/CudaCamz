@@ -403,7 +403,7 @@ def GetBestDetection(camera, detections, detection_image_size):
 		needs_filtered_reason  = test_event_needs_filtered(camera, eventclass, left, right, top, bottom, percent_screenfill)
 
 		if needs_filtered_reason:
-			logger.debug("TESTING WOULD HAVE Filtered out event reason '%s', %s-%s : %.2f %d,%d,%d,%d", 
+			logger.debug("Filtered out event reason '%s', %s-%s : %.2f %d,%d,%d,%d", 
 								needs_filtered_reason, camera, eventclass, confidence, left, right, top, bottom)
 			continue
 
