@@ -179,7 +179,7 @@ def test_event_needs_filtered(camera, eventclass, left, right, top, bottom, perc
 			mute_top = int(mute_top)
 			mute_bottom = int(mute_bottom)
 					
-			if ( (left > mute_left) and (right < mute_right) and (top > mute_top) and (bottom < mute_bottom) ):
+			if ( (left >= mute_left) and (right <= mute_right) and (top >= mute_top) and (bottom <= mute_bottom) ):
 				return name
 	except:
 		pass
