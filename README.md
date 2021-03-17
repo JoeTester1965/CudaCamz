@@ -76,6 +76,7 @@ python3 ./configure.py ./config.txt
 ```
 
 4. The default values in rtsp-simple-server.yml worked OK for me with 3 SD cameras. 
+
 However upping the camera resolution and framerate caused the proxy to run out of steam (got blank cameras sometimes when live monitoring).
 To test a fix for that, I changed these in rtsp-simple-server/rtsp-simple-server.yml (to make that change permanent, you need to change rtsp-simple-server/rtsp-simple-server.yml.original as well.)
 
