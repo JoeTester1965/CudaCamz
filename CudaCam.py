@@ -578,7 +578,7 @@ while True:
 		images_processed = 0
 		for camera, jetson_videoSource in rtsp_streams.items():
 			minimum,maximum,average,count_events_exceeding_threshold,count,threshold = basic_stats[camera].getstats()
-			logger.debug("%s had %d images from %d exceeding motion threshold %.2f : min %.2f , max  %.2f, average %.2f", 
+			logger.info("%s had %d images from %d exceeding motion threshold %.2f : min %.2f , max  %.2f, average %.2f", 
 							camera, count_events_exceeding_threshold, count, threshold, minimum, maximum, average)
 			basic_stats[camera].reset()
 		check_cameras_are_ok()
@@ -615,8 +615,6 @@ while True:
 		movement = is_motion_detected(camera, resized_image)
 
 		if movement:
-
-			logger.debug("Got movement value %.2f percent from %s", movement, camera)
 
 			detections = net.Detect(resized_image, resized_image.width, resized_image.height, 'box,labels,conf')	
 					
