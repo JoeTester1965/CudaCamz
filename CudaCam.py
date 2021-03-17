@@ -424,13 +424,15 @@ def GetBestDetection(camera, detections, detection_image_size):
 
 	return best_unfiltered_detection
 
-def check_cameras_on_startup():
+def check_cameras_are_ok():
 	for camera, jetson_videoSource in rtsp_streams.items():
 		try:
 			height = jetson_videoSource.GetHeight()
 			if not height:
 				logger.error("Camera %s is not up, removing. Do you need to re-run configure.py and start.sh?", camera)
 				rtsp_streams[camera] = None
+			else:
+				logger.info("Camera %s is up and running", camera)
 		except:
 			pass
 
@@ -439,7 +441,7 @@ def check_cameras_on_startup():
 		if rtsp_streams[camera] is not None:
 			number_of_cameras_up = number_of_cameras_up + 1
 	if number_of_cameras_up == 0:
-		logger.critical("No cameras are operational after inspection on startup, may as well shut down.")
+		logger.critical("No cameras are operational after inspection, may as well shut down.")
 		raise SystemExit
 	return
 
@@ -566,7 +568,7 @@ for name, jetson_videoSource in rtsp_streams.items():
 
 # Remove cameras that do not come up on startup
 
-check_cameras_on_startup()
+check_cameras_are_ok()
 
 # Main loop
 
@@ -579,6 +581,7 @@ while True:
 			logger.debug("%s had %d images from %d exceeding motion threshold %.2f : min %.2f , max  %.2f, average %.2f", 
 							camera, count_events_exceeding_threshold, count, threshold, minimum, maximum, average)
 			basic_stats[camera].reset()
+		check_cameras_are_ok()
 
 	for camera, jetson_videoSource in rtsp_streams.items():
 		try:

@@ -1,10 +1,17 @@
 [cameras]
 
 # friendly-name, type, uri
-# types can be : h264 | h265 | vp8 | vp9 | mpeg2 | mpeg4 | mjpeg as defined by Nvidia APIS.
+# types can be : h264 | h265 | vp8 | vp9 | mpeg2 | mpeg4 | mjpeg as defined by Nvidia APIs.
 
 ThisCamera,h264 = rtsp://192.168.1.10:554/user=username&password=12345&channel=1&stream=0.sdp
 ThatCamera,h265 = rtsp://192.168.1.53:8554/ThatUri
+
+#
+# Use a video as an input source - very useful for testing
+# Note: using_rtsp_simple_proxy must set to 0 in [general] 
+#
+test_video,mp4 = file:///some_pathname/some_filename.mp4
+
 
 [general]
 
@@ -20,6 +27,9 @@ logfile = /tmp/logfile.txt
 image_storage_dir = /tmp/images/
 image_storage_dir_percent = 10
 mutelist_reminder_folder = /tmp/mutelist_reminder
+
+# Set to 0 not to record all video
+recording_all_video = 1
 
 video_storage_dir = /tmp/videos/
 video_storage_dir_percent = 60
@@ -54,7 +64,7 @@ camera_starting_up_timeout = 5
 ai_resize_factor = 0.5
 
 # Log basic stats (e.g. number of frames being processed) every n seconds
-stats_update_seconds = 60
+stats_update_seconds = 600
 
 [motion_detect_settings]
 
@@ -70,7 +80,7 @@ motion_resize_factor = 0.25
 frame_check_delta = 1
 
 # Difference between pixels (0-255) greyscale to count as a valid difference
-movement_delta_threshold = 5
+movement_delta_threshold = 2
 
 # % of frame that needs a valid difference for motion detect to be triggered, frame then passed on for AI event detection.
 movement_hits_threshold_percent = 5.0 

@@ -80,9 +80,9 @@ if using_rtsp_simple_proxy:
 		if using_rtsp_simple_proxy:
 			cameras[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
 
-startup_amendments.write("cd " + cwd + "/rtsp_simple_server\n")
-startup_amendments.write("nohup ./rtsp-simple-server > /dev/null 2>&1 < /dev/null &\n")
-startup_amendments.write("\n")
+	startup_amendments.write("cd " + cwd + "/rtsp_simple_server\n")
+	startup_amendments.write("nohup ./rtsp-simple-server > /dev/null 2>&1 < /dev/null &\n")
+	startup_amendments.write("\n")
 
 recorder_amendments = open("recorder.sh", 'w')
 recorder_amendments.write("#The content below was created by configure.py \n\n")
@@ -116,7 +116,9 @@ recorder_amendments.close()
 
 startup_amendments.write("cd " + cwd + "\n\n")
 
-startup_amendments.write("nohup ./recorder.sh > /dev/null 2>&1 < /dev/null & \n\n")
+recording_all_video = int(config["general"]["recording_all_video"])
+if recording_all_video:
+	startup_amendments.write("nohup ./recorder.sh > /dev/null 2>&1 < /dev/null & \n\n")
 
 mutelist_reminder_folder = config["general"]["mutelist_reminder_folder"]
 if not os.path.exists(mutelist_reminder_folder):
