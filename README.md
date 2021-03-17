@@ -75,6 +75,12 @@ bash ./start.sh
 python3 ./configure.py ./config.txt
 ```
 
+4. The default values in rtsp-simple-server.yml worked OK for me with 3 SD cameras. 
+However upping the camera resolution and framerate caused the proxy to run out of steam (got blank cameras sometimes when live monitoring).
+To test a fix for that, I changed readBufferCount: 512 in rtsp-simple-server/rtsp-simple-server.yml to readBufferCount: 2048 then ran start.sh again.
+All was now OK.
+To make that change permanent, you need to change rtsp-simple-server/rtsp-simple-server.yml.original as well.
+
 ## Basic operational outline
 
 ```python
