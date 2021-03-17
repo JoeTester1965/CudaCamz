@@ -80,7 +80,7 @@ motion_resize_factor = 0.25
 frame_check_delta = 1
 
 # Difference between pixels (0-255) greyscale to count as a valid difference
-movement_delta_threshold = 2
+movement_delta_threshold = 5
 
 # % of frame that needs a valid difference for motion detect to be triggered, frame then passed on for AI event detection.
 movement_hits_threshold_percent = 5.0 
