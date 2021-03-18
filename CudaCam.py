@@ -22,11 +22,9 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import copy
 
 cameras = {}
 rtsp_streams = {}
-image_buffers = {}
 object_mutelist_inside = {}
 object_mutelist_outside = {}
 event_state_filter = {}
@@ -34,8 +32,10 @@ basic_stats = {}
 image_ai = {}
 image_bw = {}
 resized_image_bw = {}
+CudaImageBuffers = {}
 
 config = None
+smtp_down = False
 
 def read_config(config_file):
 
@@ -316,17 +316,45 @@ class StatefulEventFilter:
 				self._TimeoutCheck.reset()
 				return True, "Has moved"
 
+class FrameBuffer:
+
+	_frame = []
+
+	def __init__(self, number_of_frames, width, height, format):
+		self._total_number_of_frames = number_of_frames
+		self._index = 0
+		self._frames_added = 0
+		for index in range(number_of_frames):
+			image_buffer = jetson.utils.cudaAllocMapped(width = width, height = height, format = format)
+			self._frame.append(image_buffer)
+
+	def add_frame(self):
+		retval = self._index
+		self._frames_added = self._frames_added + 1
+		self._index = self._index + 1
+		if self._index >= self._total_number_of_frames:
+			self._index = 0
+		return self._frame[retval]
+
+	def get_historic_frame(self, frames_back):
+		if frames_back > self._frames_added:
+			return None
+		if frames_back > self._total_number_of_frames:
+			return None
+		index = self._index - frames_back
+		if index < 0:
+			index = index + self._total_number_of_frames
+		return self._frame[index]
+
 def is_motion_detected(camera, image):
 
-	global image_buffers
+	global CudaImageBuffers
 	global frame_check_delta
 	global movement_delta_threshold 
 	global movement_hits_threshold_percent 
 	global basic_stats
 	global motion_resize_factor
 
-	if not camera in image_buffers:
-		image_buffers[camera] = collections.deque()
 		
 	jetson.utils.cudaConvertColor(image, image_bw[camera])
 	jetson.utils.cudaDeviceSynchronize()
@@ -334,65 +362,71 @@ def is_motion_detected(camera, image):
 	jetson.utils.cudaResize(image_bw[camera], resized_image_bw[camera])
 	jetson.utils.cudaDeviceSynchronize()
 
-	numpy_image_bw = jetson.utils.cudaToNumpy(resized_image_bw[camera])
+	jetson.utils.cudaResize(image_bw[camera], CudaImageBuffers[camera].add_frame())
 	jetson.utils.cudaDeviceSynchronize()
 
-	image_buffers[camera].append(copy.copy(numpy_image_bw))
+	image_old = CudaImageBuffers[camera].get_historic_frame(1)
+	if image_old:
+			numpy_old = jetson.utils.cudaToNumpy(image_old)
+			jetson.utils.cudaDeviceSynchronize()
 
-	if len(image_buffers[camera]) > (frame_check_delta + 1):
-		
-		stale_image=image_buffers[camera][0]
+			image_new = CudaImageBuffers[camera].get_historic_frame(0)
+			numpy_new = jetson.utils.cudaToNumpy(image_new)
+			jetson.utils.cudaDeviceSynchronize()
 
-		del stale_image
-		
-		image_buffers[camera].popleft()
+			delta = numpy.absolute(numpy.subtract(	numpy_old.astype(numpy.int16), 
+													numpy_new.astype(numpy.int16)))
 
-		delta = numpy.absolute(numpy.subtract(	image_buffers[camera][len(image_buffers[camera]) - 1 - frame_check_delta].astype(numpy.int16), 
-												image_buffers[camera][len(image_buffers[camera]) - 1].astype(numpy.int16)))
+			movement = delta >= movement_delta_threshold  
 
-		movement = delta >= movement_delta_threshold  
+			movement_hits = len(delta[movement])
 
-		movement_hits = len(delta[movement])
+			movement_hits_percent = float(movement_hits / (resized_image_bw[camera].width * resized_image_bw[camera].height)) * 100
 
-		movement_hits_percent = float(movement_hits / (resized_image_bw[camera].width * resized_image_bw[camera].height)) * 100
+			basic_stats[camera].update(movement_hits_percent)
 
-		basic_stats[camera].update(movement_hits_percent)
-
-		if movement_hits_percent >  movement_hits_threshold_percent:
-			return movement_hits_percent
+			if movement_hits_percent >  movement_hits_threshold_percent:
+				return movement_hits_percent
 	
 	return False
 
 def send_smtp_message(camera, eventclass, image):
 
-	subject = camera
-	body = eventclass
-	message = MIMEMultipart()
-	message["From"] = sender_email
-	message["To"] = receiver_email
-	message["Subject"] = subject
+	global smtp_down
 	
-	message.attach(MIMEText(body, "plain"))
+	if not smtp_down:
+
+		subject = camera
+		body = eventclass
+		message = MIMEMultipart()
+		message["From"] = sender_email
+		message["To"] = receiver_email
+		message["Subject"] = subject
 	
-	filename = image
-	with open(filename, "rb") as attachment:
-		part = MIMEBase("application", "octet-stream")
-		part.set_payload(attachment.read())
+		message.attach(MIMEText(body, "plain"))
+	
+		filename = image
+		with open(filename, "rb") as attachment:
+			part = MIMEBase("application", "octet-stream")
+			part.set_payload(attachment.read())
 
-	encoders.encode_base64(part)
+		encoders.encode_base64(part)
 
-	part.add_header(
-		"Content-Disposition",
-		f"attachment; filename= {filename}",
-	)
+		part.add_header(
+			"Content-Disposition",
+			f"attachment; filename= {filename}",
+		)
 
-	message.attach(part)
-	text = message.as_string()
+		message.attach(part)
+		text = message.as_string()
 
-	context = ssl.create_default_context()
-	with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-		server.login(sender_email, smtp_password)
-		server.sendmail(sender_email, receiver_email, text)
+		context = ssl.create_default_context()
+		with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+			try:
+				server.login(sender_email, smtp_password)
+				server.sendmail(sender_email, receiver_email, text)
+			except:
+				smtp_down = True;
 
 def test_event_needs_alarmed(confidence, eventclass): 
 	
@@ -564,6 +598,11 @@ for name, jetson_videoSource in rtsp_streams.items():
 		resized_image_bw[name] = jetson.utils.cudaAllocMapped(	width = image_bw[name].width * motion_resize_factor,
 																height = image_bw[name].height * motion_resize_factor,
 																format="gray8")
+		# Testing this in parallel with resized_image_bw[]
+		CudaImageBuffers[name] = FrameBuffer(	frame_check_delta + 1, 
+												resized_image_bw[name].width, 
+												resized_image_bw[name].height, 
+												"gray8")
 
 		jetson.utils.cudaResize(image, image_ai[name])
 
