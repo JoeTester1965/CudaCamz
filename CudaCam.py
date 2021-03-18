@@ -113,8 +113,8 @@ def read_config(config_file):
 	global time_to_ignore_repeating_object_seconds
 	time_to_ignore_repeating_object_seconds = int(config["general"]["time_to_ignore_repeating_object_seconds"])
 
-	global bounding_box_fraction_for_repeating_object
-	bounding_box_fraction_for_repeating_object = float(config["general"]["bounding_box_fraction_for_repeating_object"])
+	global bounding_box_fraction
+	bounding_box_fraction = float(config["general"]["bounding_box_fraction"])
 
 	global mutelist_reminder_folder
 	mutelist_reminder_folder = config["general"]["mutelist_reminder_folder"]
@@ -265,12 +265,38 @@ class TimeoutCheck:
 		else:
 			return False
 
+def resize_bounding_box (left, right, top, bottom, image_width, image_height):
+
+	bounding_box_width = abs(right - left)
+	bounding_box_height = abs(bottom - top)
+
+	offset_width = int((bounding_box_width * bounding_box_fraction) / 2)
+	offset_height = int((bounding_box_height * bounding_box_fraction) / 2)	
+	
+	new_left = left - offset_width
+	if new_left < 0:
+		new_left = 0
+
+	new_right = right + offset_width
+	if new_right >= image_width:
+		new_right = image_width - 1
+
+	new_top = top - offset_width
+	if new_top < 0:
+		new_top = 0
+
+	new_bottom = bottom + offset_width
+	if new_bottom >= image_height:
+		new_bottom = image_height- 1
+
+	return new_left, new_right, new_top, new_bottom
+
 class StatefulEventFilter:
-	def __init__(self, left, right, top, bottom):
-		self._left = int (left - left * bounding_box_fraction_for_repeating_object)
-		self._right = int (right + right * bounding_box_fraction_for_repeating_object)
-		self._top = int (top  - top  * bounding_box_fraction_for_repeating_object)
-		self._bottom = int (bottom + bottom * bounding_box_fraction_for_repeating_object)
+	def __init__(self, left, right, top, bottom, width, height):
+		
+		self._left, self._right, self._top, self._bottom = resize_bounding_box(left, right, top, bottom, width, height)
+		self._width = width
+		self._height = height
 		self._TimeoutCheck = TimeoutCheck(time_to_ignore_repeating_object_seconds)
 		self._just_initialised = True
 
@@ -286,10 +312,7 @@ class StatefulEventFilter:
 				else:
 					return False, "TimeoutCheck not expired"
 			else:
-				self._left = int (left - left * bounding_box_fraction_for_repeating_object)
-				self._right = int (right + right * bounding_box_fraction_for_repeating_object)
-				self._top = int (top  - top  * bounding_box_fraction_for_repeating_object)
-				self._bottom = int (bottom + bottom * bounding_box_fraction_for_repeating_object)
+				self._left, self._right, self._top, self._bottom = resize_bounding_box(left, right, top, bottom, self._width, self._height)
 				self._TimeoutCheck.reset()
 				return True, "Has moved"
 
@@ -311,10 +334,10 @@ def is_motion_detected(camera, image):
 	jetson.utils.cudaResize(image_bw[camera], resized_image_bw[camera])
 	jetson.utils.cudaDeviceSynchronize()
 
-	numpy_image_bw[camera] = jetson.utils.cudaToNumpy(resized_image_bw[camera])
+	numpy_image_bw = jetson.utils.cudaToNumpy(resized_image_bw[camera])
 	jetson.utils.cudaDeviceSynchronize()
 
-	image_buffers[camera].append(copy.copy(numpy_image_bw[camera]))
+	image_buffers[camera].append(copy.copy(numpy_image_bw))
 
 	if len(image_buffers[camera]) > (frame_check_delta + 1):
 		
@@ -640,7 +663,7 @@ while True:
 					bottom			= int(best_unfiltered_detection.Bottom)
 
 					if not camera+eventclass in event_state_filter:
-						event_state_filter[camera+eventclass] = StatefulEventFilter(left, right, top, bottom)
+						event_state_filter[camera+eventclass] = StatefulEventFilter(left, right, top, bottom, image_ai[camera].width, image_ai[camera].height)
 					
 					can_use_event, can_use_event_message = event_state_filter[camera+eventclass].filtered(left, right, top, bottom) 
 
