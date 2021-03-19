@@ -58,7 +58,7 @@ using_rtsp_simple_proxy = 1
 # Give the Nvidia API sensible timeouts to capture an image when starting up and then in operation.
 
 camera_down_timeout_ms = 200
-camera_starting_up_timeout = 5
+camera_starting_up_timeout = 10
 camera_attempt_restart_timer = 300
 
 # No need for AI with images that are too large, this works well with 720p input
