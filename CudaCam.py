@@ -76,6 +76,9 @@ def read_config(config_file):
 	global camera_down_timeout_ms
 	camera_down_timeout_ms = int(config["general"]["camera_down_timeout_ms"])
 
+	global camera_attempt_restart_timer
+	camera_attempt_restart_timer = int(config["general"]["camera_attempt_restart_timer"])
+
 	global camera_starting_up_timeout
 	camera_starting_up_timeout = int(config["general"]["camera_starting_up_timeout"])
 
@@ -499,7 +502,7 @@ def check_cameras_are_ok_on_startup():
 		if rtsp_streams[camera] is not None:
 			number_of_cameras_up = number_of_cameras_up + 1
 	if number_of_cameras_up == 0:
-		logger.critical("No cameras are operational after inspection, may as well shut down.")
+		logger.critical("No cameras are operational, wIll shut down.")
 		raise SystemExit
 	return
 
@@ -577,6 +580,9 @@ if config.has_section("mqtt"):
 		logger.error("Cannot connect to your MQTT server")
 
 StatsTimeoutCheck = TimeoutCheck(stats_update_seconds)
+
+CameraRestartTimeoutCheck = TimeoutCheck(camera_attempt_restart_timer)
+
 images_processed=0
 
 logger.info("Starting cameras and getting test images for %s, can take a while", mutelist_reminder_folder)
@@ -657,9 +663,51 @@ while True:
 				basic_stats[camera].reset()
 				if count == 0:
 					# This should never happen but it does, NVIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
-					# Need to look at that and add in network as well as application layer logic to handle properly i.e. reopen a camera when back up!
+					# Need network as well as application layer logic to handle properly i.e. reopen a camera when back up!
 					logger.error("Camera %s is not up, removing.", camera)
 					rtsp_streams[camera] = None
+		
+	if CameraRestartTimeoutCheck.expired():
+		for camera, jetson_videoSource in rtsp_streams.items():
+			if not jetson_videoSource: 	
+				### Find URI for that partucular camera and restart it if netowork layer is up
+				for camera_details, uri in cameras.items():
+					if camera in camera_details:
+
+						hostname = uri.split(':')[1][2:]
+
+						logger.info("Pinging %s to see if %s is now available for attempted restart", hostname, camera)
+
+						response = os.system("ping -c 1 " + hostname)
+
+						if response == 0:
+
+							friendly_name, camera_type = camera_details.split(',')
+							input_codec_string = "----input-codec=" + camera_type
+							rtsp_streams[friendly_name] = jetson.utils.videoSource(uri, ['me', input_codec_string])
+							jetson_videoSource = rtsp_streams[friendly_name]
+
+							try:
+								image = jetson_videoSource.Capture(format='rgb8', timeout = camera_starting_up_timeout * 1000)
+								try:
+									height = jetson_videoSource.GetHeight()
+									if not height:
+										logger.error("Camera %s is not up, removing.", camera)
+										rtsp_streams[camera] = None
+									else:
+										logger.info("Camera %s is up and running", camera)
+								except:
+									logger.info("Camera %s is still down", camera)
+									rtsp_streams[friendly_name] = None
+							except:
+								logger.info("Camera %s is still down", camera)
+								rtsp_streams[friendly_name] = None
+							
+						else:
+							logger.info("Camera %s is still down", camera)
+							rtsp_streams[friendly_name] = None
+
+						break
 
 	for camera, jetson_videoSource in rtsp_streams.items():
 		if jetson_videoSource: 
@@ -670,7 +718,7 @@ while True:
 				try:
 					if not jetson_videoSource.IsStreaming():
 						# VNIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
-						# Need to look at that and add in network as well as application layer logic to handle properly i.e. reopen a camera when back up!
+						# Need network as well as application layer logic to handle properly i.e. reopen a camera when back up!
 						logger.error("Camera %s is not up, removing.", camera)
 						rtsp_streams[camera] = None
 				except:

@@ -59,6 +59,7 @@ using_rtsp_simple_proxy = 1
 
 camera_down_timeout_ms = 200
 camera_starting_up_timeout = 5
+camera_attempt_restart_timer = 300
 
 # No need for AI with images that are too large, this works well with 720p input
 ai_resize_factor = 0.5
