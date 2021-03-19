@@ -321,12 +321,11 @@ class StatefulEventFilter:
 
 class FrameBuffer:
 
-	_frame = []
-
 	def __init__(self, number_of_frames, width, height, format):
 		self._total_number_of_frames = number_of_frames
 		self._index = 0
 		self._frames_added = 0
+		self._frame = []
 		for index in range(number_of_frames):
 			image_buffer = jetson.utils.cudaAllocMapped(width = width, height = height, format = format)
 			self._frame.append(image_buffer)
@@ -591,7 +590,6 @@ for name, jetson_videoSource in rtsp_streams.items():
 	try:
 		image = jetson_videoSource.Capture(format='rgb8', timeout = camera_starting_up_timeout*1000)
 
-		# keeping mallocs static to nail a memory leak
 
 		image_ai[name] = jetson.utils.cudaAllocMapped(	width = image.width * ai_resize_factor,
 														height = image.height * ai_resize_factor,
@@ -604,7 +602,7 @@ for name, jetson_videoSource in rtsp_streams.items():
 		resized_image_bw[name] = jetson.utils.cudaAllocMapped(	width = image_bw[name].width * motion_resize_factor,
 																height = image_bw[name].height * motion_resize_factor,
 																format="gray8")
-		# Testing this in parallel with resized_image_bw[]
+		
 		CudaImageBuffers[name] = FrameBuffer(	frame_check_delta + 1, 
 												resized_image_bw[name].width, 
 												resized_image_bw[name].height, 
