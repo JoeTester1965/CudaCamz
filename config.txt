@@ -47,7 +47,7 @@ baseline_model_confidence = 0.5
 
 # This stops too many repeat alarms when someone or something is fidgeting around
 time_to_ignore_repeating_object_seconds = 60
-bounding_box_fraction_for_repeating_object = 0.1
+bounding_box_fraction = 0.1
 
 # Recommend using this, having multiple streams for video recording, AI event sensing (done here)
 # and live monitoring (I use vlc) can overwhelm your cameras and or network. 
