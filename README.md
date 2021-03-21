@@ -40,7 +40,7 @@ You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is c
 
 ## Important note
 
-The first time CudaCam is run using start.sh in step 4. below, it will take five minutes or more for the AI model running on the GPU to be initially compiled.
+The first time CudaCam is run using start.sh below, it will take five minutes or more for the AI model running on the GPU to be initially compiled.
  
 After that on subsequent runs it will only take about thirty seconds to load from a cache.
 
@@ -75,18 +75,18 @@ bash ./start.sh
 python3 ./configure.py ./config.txt
 ```
 
-4. The default values in rtsp-simple-server.yml worked OK for me with 3 SD cameras. 
+4. Check the default values in rtsp-simple-server/rtsp-simple-server.yml.
+
+These worked OK for me with 3 SD cameras.
 
 However upping the camera resolution and framerate caused the proxy to run out of steam (got blank cameras sometimes when live monitoring).
-To test a fix for that, I changed these in rtsp-simple-server/rtsp-simple-server.yml 
+To test fix, I changed the values below in rtsp-simple-server/rtsp-simple-server.yml then re-ran start.sh.
 To make that change permanent, you need to change rtsp-simple-server/rtsp-simple-server.yml.original as well.
 
 ```console
 readBufferCount: 512 ->	readBufferCount: 2048 
 protocols: [udp, tcp] -> protocols: [tcp]
 ```
-
-All now seems OK.
 
 ## Basic operational outline
 

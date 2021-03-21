@@ -656,11 +656,11 @@ while True:
 		for camera, jetson_videoSource in rtsp_streams.items():
 			if jetson_videoSource: 
 				minimum,maximum,average,count_events_exceeding_threshold,count,threshold = basic_stats[camera].getstats()
-				logger.info("%s had %d images from %d exceeding motion threshold %.2f : min %.2f , max  %.2f, average %.2f", 
+				logger.debug("%s had %d images from %d exceeding motion threshold %.2f : min %.2f , max  %.2f, average %.2f", 
 								camera, count_events_exceeding_threshold, count, threshold, minimum, maximum, average)
 				basic_stats[camera].reset()
 				if count == 0:
-					# This should never happen but it does, NVIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
+					# This should never happen but it does, NVIDIA API sub-optimal at detecting and dealing with cameras going offline - just relies on a big buffer.
 					# Need network as well as application layer logic to handle properly i.e. reopen a camera when back up!
 					logger.error("Camera %s is not up, removing.", camera)
 					rtsp_streams[camera] = None
@@ -715,7 +715,7 @@ while True:
 				logger.debug("Timeout in getting image from %s", camera)
 				try:
 					if not jetson_videoSource.IsStreaming():
-						# VNIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
+						# VNIDIA API sub-optimal at detecting and dealing with cameras going offline - just relies on a big buffer.
 						# Need network as well as application layer logic to handle properly i.e. reopen a camera when back up!
 						logger.error("Camera %s is not up, removing.", camera)
 						rtsp_streams[camera] = None
