@@ -84,7 +84,7 @@ To test fix, I changed the values below in rtsp-simple-server/rtsp-simple-server
 To make that change permanent, you need to change rtsp-simple-server/rtsp-simple-server.yml.original as well.
 
 ```console
-readBufferCount: 512 ->	readBufferCount: 2048 
+readBufferCount: 512 ->	readBufferCount: 4096 
 protocols: [udp, tcp] -> protocols: [tcp]
 ```
 
