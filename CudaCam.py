@@ -577,6 +577,7 @@ if config.has_section("mqtt"):
 		mqtt_client.connect(mqtt_ip_address, 1883)
 	except:
 		logger.error("Cannot connect to your MQTT server")
+	mqtt_client.loop_start() 
 
 StatsTimeoutCheck = TimeoutCheck(stats_update_seconds)
 
@@ -586,7 +587,7 @@ images_processed=0
 
 logger.info("Starting cameras and getting test images for %s, can take a while", mutelist_reminder_folder)
 
-for name, jetson_videoSource in rtsp_streams.items():
+for name, jetson_videoSource in rtsp_streams.items(): 
 	try:
 		image = jetson_videoSource.Capture(format='rgb8', timeout = camera_starting_up_timeout*1000)
 
@@ -656,11 +657,11 @@ while True:
 		for camera, jetson_videoSource in rtsp_streams.items():
 			if jetson_videoSource: 
 				minimum,maximum,average,count_events_exceeding_threshold,count,threshold = basic_stats[camera].getstats()
-				logger.debug("%s had %d images from %d exceeding motion threshold %.2f : min %.2f , max  %.2f, average %.2f", 
+				logger.info("%s had %d images from %d exceeding motion threshold %.2f : min %.2f , max  %.2f, average %.2f", 
 								camera, count_events_exceeding_threshold, count, threshold, minimum, maximum, average)
 				basic_stats[camera].reset()
 				if count == 0:
-					# This should never happen but it does, NVIDIA API sub-optimal at detecting and dealing with cameras going offline - just relies on a big buffer.
+					# This should never happen but it does, NVIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
 					# Need network as well as application layer logic to handle properly i.e. reopen a camera when back up!
 					logger.error("Camera %s is not up, removing.", camera)
 					rtsp_streams[camera] = None
@@ -715,7 +716,7 @@ while True:
 				logger.debug("Timeout in getting image from %s", camera)
 				try:
 					if not jetson_videoSource.IsStreaming():
-						# VNIDIA API sub-optimal at detecting and dealing with cameras going offline - just relies on a big buffer.
+						# VNIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
 						# Need network as well as application layer logic to handle properly i.e. reopen a camera when back up!
 						logger.error("Camera %s is not up, removing.", camera)
 						rtsp_streams[camera] = None
@@ -782,10 +783,8 @@ while True:
 
 						sqlite_connection.commit()
 
-						if needs_alarmed:
-							
-							message_needs_alarmed = camera + " : " + eventclass
-
+						if needs_alarmed:					
+							message_needs_alarmed = camera + ":" + eventclass
 							if config.has_section("mqtt"):
 								mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
 
@@ -797,4 +796,3 @@ while True:
 					else:
 						logger.debug("Filtered out event in StatefulEventFilter reason '%s', alarmed %d : %s - %s:%.2f %d,%d,%d,%d", 
 									can_use_event_message, needs_alarmed, camera, eventclass, confidence, left, right, top, bottom)
-			
