@@ -1,4 +1,4 @@
-# CudaCam
+# CudaCamz
 
 Inspired by  https://github.com/dusty-nv/jetson-inference/ 
 
@@ -6,7 +6,7 @@ Did this as a lockdown project.
 
 The neighbourhood cats, dogs and other more interesting wildlife are now more transparent.
 
-CudaCam runs on a Nvidia Jetson Nano giving your home or small office a bespoke meaningfully-filtered AI camera event generator on a budget.
+CudaCamz runs on a Nvidia Jetson Nano giving your home or small office a bespoke meaningfully-filtered AI camera event generator on a budget.
 
 Can record all incoming video as well in case something goes down.
 
@@ -40,7 +40,7 @@ You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is c
 
 ## Important note
 
-The first time CudaCam is run using start.sh below, it will take five minutes or more for the AI model running on the GPU to be initially compiled.
+The first time CudaCamz is run using start.sh below, it will take five minutes or more for the AI model running on the GPU to be initially compiled.
  
 After that on subsequent runs it will only take about thirty seconds to load from a cache.
 
@@ -62,7 +62,7 @@ bash ./start.sh
 
 2. Examine the images folder / logfiles or sqlite database then tune the [configuration file](./config.txt) to remove any false positives you get.
 
-3. Then use this to start and stop CudaCam:
+3. Then use this to start and stop CudaCamz:
 
 ```console
 ./start.sh
