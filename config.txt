@@ -20,7 +20,7 @@ logging_level_debug = 1
 
 # Set the paths for images and video below to what works for you on your jetson nano
 # Recommend using a usb3 hdd with samba installed and configured to see files on your network
-# Note that x_storage_dir_percent is percentage of total disk allocated2uni
+# Note that x_storage_dir_percent is percentage of total disk allocated
 
 logfile = /tmp/logfile.txt
 
