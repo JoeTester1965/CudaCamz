@@ -10,7 +10,7 @@ CudaCamz runs on a Nvidia Jetson Nano giving your home or small office a bespoke
 
 Can record all incoming video as well in case something goes down.
 
-Uses a very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) so that you can do the above and also live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
+Uses an (optional) very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) so that you can do the above and also live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
 
 ![!](./scope.jpg "")
 
