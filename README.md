@@ -105,10 +105,10 @@ Three cameras attached at 720p, 20fps - Constant Bit Rate. Ambient temperature w
 
 Measured using [jtop](https://pypi.org/project/jetson-stats/).
 
-| Power plan mode |    Current   | AO temp (C)  | Images per second |
-| :-------------: | :----------: | :-----------:| :-----------------|
-|       1         |     2.5A     |      52      |         515       |
-|       0         |     6.0A     |      66      |         861       |   
+| Power plan mode |    Current   | AO temp (C)  | Total images processed per second |
+| :-------------: | :----------: | :-----------:| :---------------------------------|
+|       1         |     2.5A     |      52      |         2583                      |
+|       0         |     6.0A     |      66      |         1549                      |   
 	
 To change power plan mode on the Jetson Nano (and survive a reboot): 
 
