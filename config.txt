@@ -122,14 +122,14 @@ labels = bed,chair
 #  When CudaCam starts up, snapshot images are places in mutelist_reminder_folder
 #   so you can check if windows are what you expect. Green = _inside, Red = _outside
 
-[object_mutelist_inside-front_garden]
-big pot = 0,175,0,300
+[object_mutelist_inside-ThisCamera]
+BigPot = 0,175,0,300
 
-[object_mutelist_outside-front_garden]
-hedge = 100,550,50,250
+[object_mutelist_outside-ThisCamera]
+Hedge = 100,550,50,250
 
-[object_mutelist_inside-back_garden]
-hose&reel = 475,575,125,300
+[object_mutelist_inside-ThatCamera]
+Hose&Reel = 475,575,125,300
 
 # Look up on Google if you want to install a MQTT server on your Jetson (is simplez), or use another!
 [mqtt]
