@@ -54,12 +54,15 @@ sudo make install
 sudo ldconfig
 cd ../..
 
-chmod u+x ./configure.py
-
+RTSP_VERSION="v0.19.1"
+RTSP_IMAGE="rtsp-simple-server_v0.19.1_linux_arm64v8"
 mkdir -p rtsp_simple_server
 cd rtsp_simple_server
-wget https://github.com/aler9/rtsp-simple-server/releases/download/v0.14.2/rtsp-simple-server_v0.14.2_linux_arm64v8.tar.gz
-gunzip rtsp-simple-server_v0.14.2_linux_arm64v8.tar.gz
-tar -xvf  rtsp-simple-server_v0.14.2_linux_arm64v8.tar
-rm rtsp-simple-server_v0.14.2_linux_arm64v8.tar
+wget https://github.com/aler9/rtsp-simple-server/releases/download/"$RTSP_VERSION"/"$RTSP_IMAGE".tar.gz
+gunzip "$RTSP_IMAGE".tar.gz
+tar -xvf  "$RTSP_IMAGE".tar
+rm "$RTSP_IMAGE".tar
 mv rtsp-simple-server.yml rtsp-simple-server.yml.original
+
+cd ..
+chmod u+x ./configure.py

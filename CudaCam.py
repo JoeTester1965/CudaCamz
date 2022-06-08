@@ -24,6 +24,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 cameras = {}
+camera_ip_address = {}
 rtsp_streams = {}
 object_mutelist_inside = {}
 object_mutelist_outside = {}
@@ -235,7 +236,7 @@ class BasicStatsAgainstThreshold:
 		if value < self._minumum:
 			self._minumum = value
 		if value > self._maximum:
-			 self._maximum = value
+			self._maximum = value
 		if value > self._threshold:
 			self._count_events_exceeding_threshold = self._count_events_exceeding_threshold + 1
 	
@@ -530,6 +531,7 @@ logger = logging.getLogger(__name__)
 logger.info("CudaCam started")
 
 for camera_details, uri in cameras.items():
+	camera_ip_address[camera_details] = uri.split(':')[1][2:]
 	if using_rtsp_simple_proxy:
 		friendly_name, camera_type = camera_details.split(',')
 		cameras[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
@@ -673,7 +675,7 @@ while True:
 				for camera_details, uri in cameras.items():
 					if camera in camera_details:
 
-						hostname = uri.split(':')[1][2:]
+						hostname = camera_ip_address[camera_details]
 
 						logger.info("Pinging %s to see if %s is now available for attempted restart", hostname, camera)
 
