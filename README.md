@@ -10,7 +10,7 @@ CudaCamz runs on a Nvidia Jetson Nano giving your home or small office a bespoke
 
 Can record all incoming video as well in case something goes down.
 
-Uses an (optional) very network efficient [RTSP proxy](https://github.com/aler9/rtsp-simple-server) so that you can do the above and also live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
+Uses an (optional) very network efficient [RTSP proxy mediamtx ney rtspproxy](https://github.com/bluenviron/mediamtx) so that you can do the above and also live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
 
 ![!](./scope.jpg "")
 
@@ -73,19 +73,6 @@ bash ./start.sh
 3. If you delete an image or video folder, or add or delete a camera, things will need reconfigured again:
 ```console
 python3 ./configure.py ./config.txt
-```
-
-4. Check the default values in rtsp-simple-server/rtsp-simple-server.yml.
-
-These worked OK for me with 3 SD cameras.
-
-However upping the camera resolution and framerate caused the proxy to run out of steam (got blank cameras sometimes when live monitoring).
-To test fix, I changed the values below in rtsp-simple-server/rtsp-simple-server.yml then re-ran start.sh.
-To make that change permanent, you need to change rtsp-simple-server/rtsp-simple-server.yml.original as well.
-
-```console
-readBufferCount: 512 ->	readBufferCount: 4096 
-protocols: [udp, tcp] -> protocols: [tcp]
 ```
 
 ## Basic operational outline

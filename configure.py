@@ -61,9 +61,9 @@ startup_amendments.write("nohup ./limit-directory-size.sh " + image_storage_dir 
 global cameras
 cameras = dict(config['cameras'])
 
-copyfile("rtsp_simple_server/rtsp-simple-server.yml.original", "rtsp_simple_server/rtsp-simple-server.yml")
+copyfile("mediamtx/mediamtx.yml.original", "mediamtx/mediamtx.yml")
 
-rtsp_amendments = open("rtsp_simple_server/rtsp-simple-server.yml", 'a')
+rtsp_amendments = open("mediamtx/mediamtx.yml", 'a')
 
 for camera_details, uri in cameras.items():
 	friendly_name, camera_type = camera_details.split(',')
@@ -80,8 +80,8 @@ if using_rtsp_simple_proxy:
 		if using_rtsp_simple_proxy:
 			cameras[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
 
-	startup_amendments.write("cd " + cwd + "/rtsp_simple_server\n")
-	startup_amendments.write("nohup ./rtsp-simple-server > /dev/null 2>&1 < /dev/null &\n")
+	startup_amendments.write("cd " + cwd + "/mediamtx\n")
+	startup_amendments.write("nohup ./mediamtx > /dev/null 2>&1 < /dev/null &\n")
 	startup_amendments.write("\n")
 
 recorder_amendments = open("recorder.sh", 'w')

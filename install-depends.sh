@@ -54,15 +54,15 @@ sudo make install
 sudo ldconfig
 cd ../..
 
-RTSP_VERSION="v0.19.1"
-RTSP_IMAGE="rtsp-simple-server_v0.19.1_linux_arm64v8"
-mkdir -p rtsp_simple_server
-cd rtsp_simple_server
-wget https://github.com/aler9/rtsp-simple-server/releases/download/"$RTSP_VERSION"/"$RTSP_IMAGE".tar.gz
+RTSP_VERSION="v0.23.3"
+RTSP_IMAGE="mediamtx_v0.23.3_linux_arm64v8"
+mkdir -p mediamtx
+cd mediamtx
+wget https://github.com/bluenviron/mediamtx/releases/download/"$RTSP_VERSION"/"$RTSP_IMAGE".tar.gz
 gunzip "$RTSP_IMAGE".tar.gz
 tar -xvf  "$RTSP_IMAGE".tar
 rm "$RTSP_IMAGE".tar
-mv rtsp-simple-server.yml rtsp-simple-server.yml.original
+mv mediamtx.yml mediamtx.yml.original
 
 cd ..
 chmod u+x ./configure.py
