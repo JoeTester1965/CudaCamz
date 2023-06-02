@@ -1,0 +1,7 @@
+time.sleep(1.0/AI_FPS_THROTTLE/2) after while True: in main loop - set 5 as default : Run Al slower than video FPS.
+
+Motion mask for cameras - base on startup image - paint black and white.
+
+ping proper IP when camera goes down if remapped, not 127.0.0.1
+
+email as a separate thread and with a messages per hour limit per camera, default 10!
