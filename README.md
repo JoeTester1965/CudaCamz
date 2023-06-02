@@ -129,7 +129,6 @@ sudo reboot
 ```
 
 ## Contributing
-Have moved on to the next thing, so will shortly archive.
 
 Please do email JoeTester1965 at mail dot com with any questions.
 
