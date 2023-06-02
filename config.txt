@@ -49,11 +49,12 @@ baseline_model_confidence = 0.5
 time_to_ignore_repeating_object_seconds = 60
 bounding_box_fraction = 0.1
 
-# Recommend using this, having multiple streams for video recording, AI event sensing (done here)
-# and live monitoring (I use vlc) can overwhelm your cameras and or network. 
+# You may want to use this, having multiple streams for video recording, AI event sensing (done here)
+# and live monitoring (I use vlc) can overwhelm your cameras and or network. But cheap IP camreras can 
+# cause problems with non-standards-compliant behaviour.
 # The remapped URI for your cameras is logged on startup.
 
-using_rtsp_simple_proxy = 1
+using_rtsp_simple_proxy = 0
 
 # Give the Nvidia API sensible timeouts to capture an image when starting up and then in operation.
 
