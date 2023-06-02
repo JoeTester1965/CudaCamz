@@ -86,32 +86,6 @@ For all cameras
 					Alarm (MQTT and SMTP email - as configured or not)
 ```
 
-## Performance and power plans
-
-Three cameras attached at 720p, 20fps - Constant Bit Rate. Ambient temperature was 15C. No cooling. ai_resize_factor = 0.5 and motion_resize_factor = 0.25.
-
-Measured using [jtop](https://pypi.org/project/jetson-stats/).
-
-| Power plan mode |    Current   | AO temp (C)  | Total images processed per second |
-| :-------------: | :----------: | :-----------:| :---------------------------------|
-|       1         |     2.5A     |      52      |         2583                      |
-|       0         |     6.0A     |      66      |         1549                      |   
-	
-To change power plan mode on the Jetson Nano (and survive a reboot): 
-
-```console
-sudo nano /etc/nvpmodel.conf
-```
-
-*change PM_CONFIG DEFAULT at bottom of that file to **1** - **low** power or **0** - **high** power*
-
-then
-
-```console
-rm /var/lib/nvpmodel/status
-sudo reboot
-```
-
 ## Example startup logfile
 ```bash
 2021-03-08:19:19:43,355 INFO     [CudaCam.py:463] CudaCam started
