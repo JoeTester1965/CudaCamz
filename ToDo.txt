@@ -1,3 +1,13 @@
+Update code to use non deprecated API.
+
+One instance of Cudacamz per camera - mitigate blocking fx.
+
+Measure elapsed time in main processing loop so can sleep at end of loop to allow a AI_PROCESSING_FPS value in config file.
+
+Allow separate streams for AI and Motion detect as most cameras have dual ports. e.g. 1080p and 640x400.
+
+Bypass GPU processing as necessary for scale factor 1.0. 
+
 Motion mask for cameras - base on startup image - paint black and white.
 
 ping proper IP when camera goes down if remapped, not 127.0.0.1
