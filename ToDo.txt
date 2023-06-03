@@ -1,8 +1,6 @@
 Update code to use non deprecated API.
 
-One instance of Cudacamz per camera - mitigate blocking fx.
-
-Measure elapsed time in main processing loop so can sleep at end of loop to allow a AI_PROCESSING_FPS value in config file.
+One instance of Cudacamz per camera - mitigate blocking fx..
 
 Allow separate streams for AI and Motion detect as most cameras have dual ports. e.g. 1080p and 640x400.
 
