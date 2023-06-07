@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 import platform
-import jetson.utils
-import jetson.inference
+import jetson_utils
+import jetson_inference
 import sys
 import configparser
 import sys
@@ -328,7 +328,7 @@ class FrameBuffer:
 		self._frames_added = 0
 		self._frame = []
 		for index in range(number_of_frames):
-			image_buffer = jetson.utils.cudaAllocMapped(width = width, height = height, format = format)
+			image_buffer = jetson_utils.cudaAllocMapped(width = width, height = height, format = format)
 			self._frame.append(image_buffer)
 
 	def add_frame(self):
@@ -359,23 +359,23 @@ def is_motion_detected(camera, image):
 	global motion_resize_factor
 
 		
-	jetson.utils.cudaConvertColor(image, image_bw[camera])
-	jetson.utils.cudaDeviceSynchronize()
+	jetson_utils.cudaConvertColor(image, image_bw[camera])
+	jetson_utils.cudaDeviceSynchronize()
 
-	jetson.utils.cudaResize(image_bw[camera], resized_image_bw[camera])
-	jetson.utils.cudaDeviceSynchronize()
+	jetson_utils.cudaResize(image_bw[camera], resized_image_bw[camera])
+	jetson_utils.cudaDeviceSynchronize()
 
-	jetson.utils.cudaResize(image_bw[camera], CudaImageBuffers[camera].add_frame())
-	jetson.utils.cudaDeviceSynchronize()
+	jetson_utils.cudaResize(image_bw[camera], CudaImageBuffers[camera].add_frame())
+	jetson_utils.cudaDeviceSynchronize()
 
 	image_old = CudaImageBuffers[camera].get_historic_frame(1)
 	if image_old:
-			numpy_old = jetson.utils.cudaToNumpy(image_old)
-			jetson.utils.cudaDeviceSynchronize()
+			numpy_old = jetson_utils.cudaToNumpy(image_old)
+			jetson_utils.cudaDeviceSynchronize()
 
 			image_new = CudaImageBuffers[camera].get_historic_frame(0)
-			numpy_new = jetson.utils.cudaToNumpy(image_new)
-			jetson.utils.cudaDeviceSynchronize()
+			numpy_new = jetson_utils.cudaToNumpy(image_new)
+			jetson_utils.cudaDeviceSynchronize()
 
 			delta = numpy.absolute(numpy.subtract(	numpy_old.astype(numpy.int16), 
 													numpy_new.astype(numpy.int16)))
@@ -544,10 +544,10 @@ for camera_details, uri in cameras.items():
 for camera_details, uri in cameras.items():
 	friendly_name, camera_type = camera_details.split(',')
 	input_codec_string = "----input-codec=" + camera_type
-	rtsp_streams[friendly_name] = jetson.utils.videoSource(uri, ['me', input_codec_string])
+	rtsp_streams[friendly_name] = jetson_utils.videoSource(uri, ['me', input_codec_string])
 
 logger.info("Starting inference engine, can take a while")
-net = jetson.inference.detectNet("ssd-mobilenet-v2", baseline_model_confidence)
+net = jetson_inference.detectNet("ssd-mobilenet-v2", baseline_model_confidence)
 logger.info("Inference engine is up")
 
 sqlite_connection = sqlite3.connect(sqlite_db)
@@ -594,15 +594,15 @@ for name, jetson_videoSource in rtsp_streams.items():
 		image = jetson_videoSource.Capture(format='rgb8', timeout = camera_starting_up_timeout*1000)
 
 
-		image_ai[name] = jetson.utils.cudaAllocMapped(	width = image.width * ai_resize_factor,
+		image_ai[name] = jetson_utils.cudaAllocMapped(	width = image.width * ai_resize_factor,
 														height = image.height * ai_resize_factor,
 														format = image.format)
 
-		image_bw[name] = jetson.utils.cudaAllocMapped(	width = image_ai[name].width,
+		image_bw[name] = jetson_utils.cudaAllocMapped(	width = image_ai[name].width,
 														height = image_ai[name].height, 
 														format="gray8")	
 
-		resized_image_bw[name] = jetson.utils.cudaAllocMapped(	width = image_bw[name].width * motion_resize_factor,
+		resized_image_bw[name] = jetson_utils.cudaAllocMapped(	width = image_bw[name].width * motion_resize_factor,
 																height = image_bw[name].height * motion_resize_factor,
 																format="gray8")
 		
@@ -611,15 +611,15 @@ for name, jetson_videoSource in rtsp_streams.items():
 												resized_image_bw[name].height, 
 												"gray8")
 
-		jetson.utils.cudaResize(image, image_ai[name])
+		jetson_utils.cudaResize(image, image_ai[name])
 
-		jetson.utils.cudaDeviceSynchronize()
+		jetson_utils.cudaDeviceSynchronize()
 
 		try:
 			filename = mutelist_reminder_folder + "/" + name + ".jpg"
-			jetson.utils.saveImageRGBA(filename , image_ai[name], 
+			jetson_utils.saveImageRGBA(filename , image_ai[name], 
 											image_ai[name].width, image_ai[name].height)
-			jetson.utils.cudaDeviceSynchronize()
+			jetson_utils.cudaDeviceSynchronize()
 			source_image = Image.open(filename)
 			draw = ImageDraw.Draw(source_image)
 
@@ -685,7 +685,7 @@ while True:
 
 							friendly_name, camera_type = camera_details.split(',')
 							input_codec_string = "----input-codec=" + camera_type
-							rtsp_streams[friendly_name] = jetson.utils.videoSource(uri, ['me', input_codec_string])
+							rtsp_streams[friendly_name] = jetson_utils.videoSource(uri, ['me', input_codec_string])
 							jetson_videoSource = rtsp_streams[friendly_name]
 
 							try:
@@ -728,8 +728,8 @@ while True:
 
 			images_processed = images_processed + 1
 
-			jetson.utils.cudaResize(image, image_ai[camera])
-			jetson.utils.cudaDeviceSynchronize()
+			jetson_utils.cudaResize(image, image_ai[camera])
+			jetson_utils.cudaDeviceSynchronize()
 
 			movement = is_motion_detected(camera, image_ai[camera])
 
@@ -775,9 +775,9 @@ while True:
 
 						os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
 
-						jetson.utils.saveImageRGBA(image_location, image_ai[camera], image_ai[camera].width, image_ai[camera].height)
+						jetson_utils.saveImageRGBA(image_location, image_ai[camera], image_ai[camera].width, image_ai[camera].height)
 
-						jetson.utils.cudaDeviceSynchronize()
+						jetson_utils.cudaDeviceSynchronize()
 				
 						sqlite_cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?,?,?)" , 
 								(camera, timestamp, eventclass , confidence, needs_alarmed,  

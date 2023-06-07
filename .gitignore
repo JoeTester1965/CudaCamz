@@ -4,3 +4,7 @@
 
 /.vs/CudaCam/v16/.suo
 /.vs
+config.txt
+stop.sh
+start.sh
+recorder.sh
