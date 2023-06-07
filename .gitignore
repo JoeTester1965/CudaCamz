@@ -4,6 +4,7 @@
 
 /.vs/CudaCam/v16/.suo
 /.vs
+/.vscode
 config.txt
 stop.sh
 start.sh
@@ -12,3 +13,5 @@ mediamtx/LICENSE
 mediamtx/mediamtx
 mediamtx/mediamtx.yml
 mediamtx/mediamtx.yml.original
+jetson-inference
+jetson-utils
