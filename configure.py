@@ -137,7 +137,7 @@ mutelist_reminder_folder = config["general"]["mutelist_reminder_folder"]
 if not os.path.exists(mutelist_reminder_folder):
 	os.mkdir(mutelist_reminder_folder)
 
-startup_amendments.write("nohup python3 CudaCam.py config.txt > /dev/null 2>&1 < /dev/null &\n")
+startup_amendments.write("nohup python3 CudaCam.py " + config_file + " > /dev/null 2>&1 < /dev/null &\n")
 startup_amendments.close()
 
 chmod_plus_x("start.sh")
