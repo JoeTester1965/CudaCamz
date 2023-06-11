@@ -14,13 +14,6 @@ ThatCamera,h265 = rtsp://192.168.1.53:8554/ThatUri
 ThisCamera,h264 = rtsp://192.168.1.10:554/user=username&password=12345&channel=1&stream=0.sdp
 ThatCamera,h265 = rtsp://192.168.1.53:8554/ThatUri
 
-#
-# Use a video as an input source - very useful for testing
-# Note: using_rtsp_simple_proxy must set to 0 in [general] 
-#
-test_video,mp4 = file:///some_pathname/some_filename.mp4
-
-
 [general]
 
 # Set to 0 for more less detail in the logfile after you are happy with your config file
