@@ -15,3 +15,6 @@ mediamtx/mediamtx.yml
 mediamtx/mediamtx.yml.original
 jetson-inference/
 jetson-utils/
+config.txt
+jetson-inference
+jetson-utils
