@@ -51,7 +51,7 @@ if [ ! -d "$FOLDER" ] ; then
 	mkdir $FOLDER
 fi
 cd $FOLDER
-cmake ../ 
+cmake -DENABLE_NVMM=OFF ../ 
 sudo make install
 sudo ldconfig
 cd ../..
