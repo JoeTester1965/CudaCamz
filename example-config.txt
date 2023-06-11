@@ -29,8 +29,8 @@ image_storage_dir = /tmp/images/
 image_storage_dir_percent = 10
 mutelist_reminder_folder = /tmp/mutelist_reminder
 
-# Set to 0 not to record all video
-recording_all_video = 1
+# Set to 1 to record all video
+recording_all_video = 0
 
 video_storage_dir = /tmp/videos/
 video_storage_dir_percent = 60
@@ -54,13 +54,13 @@ bounding_box_fraction = 0.1
 # and live monitoring (I use vlc) can overwhelm your cameras and or network. 
 # The remapped URI for your cameras is logged on startup.
 
-using_rtsp_simple_proxy = 1
+using_rtsp_simple_proxy = 0
 
 # Give the Nvidia API sensible timeouts to capture an image when starting up and then in operation.
 
-camera_down_timeout_ms = 200
+camera_down_timeout_ms = 500
 camera_starting_up_timeout = 10
-camera_attempt_restart_timer = 300
+camera_attempt_restart_timer = 10
 
 # No need for AI with images that are too large, this works well with 720p input
 ai_resize_factor = 0.5
