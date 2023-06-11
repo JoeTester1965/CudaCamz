@@ -45,7 +45,7 @@ def read_config(config_file):
 	config.read(sys.argv[1])
 	
 	global cameras
-	cameras = dict(config['cameras'])
+	cameras = dict(config['camerasAI']) 
 
 	global using_rtsp_simple_proxy
 	using_rtsp_simple_proxy = int(config["general"]["using_rtsp_simple_proxy"])
@@ -358,25 +358,20 @@ def is_motion_detected(camera, image):
 	global basic_stats
 	global motion_resize_factor
 
-		
 	jetson_utils.cudaConvertColor(image, image_bw[camera])
-	jetson_utils.cudaDeviceSynchronize()
 
 	jetson_utils.cudaResize(image_bw[camera], resized_image_bw[camera])
-	jetson_utils.cudaDeviceSynchronize()
 
 	jetson_utils.cudaResize(image_bw[camera], CudaImageBuffers[camera].add_frame())
-	jetson_utils.cudaDeviceSynchronize()
 
 	image_old = CudaImageBuffers[camera].get_historic_frame(1)
 	if image_old:
 			numpy_old = jetson_utils.cudaToNumpy(image_old)
-			jetson_utils.cudaDeviceSynchronize()
 
 			image_new = CudaImageBuffers[camera].get_historic_frame(0)
+			
 			numpy_new = jetson_utils.cudaToNumpy(image_new)
-			jetson_utils.cudaDeviceSynchronize()
-
+			
 			delta = numpy.absolute(numpy.subtract(	numpy_old.astype(numpy.int16), 
 													numpy_new.astype(numpy.int16)))
 
@@ -531,18 +526,12 @@ logger = logging.getLogger(__name__)
 logger.info("CudaCam started")
 
 for camera_details, uri in cameras.items():
+	friendly_name, camera_type = camera_details.split(',')
 	camera_ip_address[camera_details] = uri.split(':')[1][2:]
-	if using_rtsp_simple_proxy:
-		friendly_name, camera_type = camera_details.split(',')
+	if using_rtsp_simple_proxy:		
 		cameras[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
 		logger.info("Remapped %s to %s as using_rtsp_simple_proxy set", uri, cameras[camera_details])
-
-for camera_details, uri in cameras.items():
-	friendly_name, camera_type = camera_details.split(',')
 	basic_stats[friendly_name] = BasicStatsAgainstThreshold(movement_hits_threshold_percent)
-
-for camera_details, uri in cameras.items():
-	friendly_name, camera_type = camera_details.split(',')
 	input_codec_string = "----input-codec=" + camera_type
 	rtsp_streams[friendly_name] = jetson_utils.videoSource(uri, ['me', input_codec_string])
 
@@ -585,8 +574,6 @@ StatsTimeoutCheck = TimeoutCheck(stats_update_seconds)
 
 CameraRestartTimeoutCheck = TimeoutCheck(camera_attempt_restart_timer)
 
-images_processed=0
-
 logger.info("Starting cameras and getting test images for %s, can take a while", mutelist_reminder_folder)
 
 for name, jetson_videoSource in rtsp_streams.items(): 
@@ -613,13 +600,12 @@ for name, jetson_videoSource in rtsp_streams.items():
 
 		jetson_utils.cudaResize(image, image_ai[name])
 
-		jetson_utils.cudaDeviceSynchronize()
-
 		try:
 			filename = mutelist_reminder_folder + "/" + name + ".jpg"
+
 			jetson_utils.saveImageRGBA(filename , image_ai[name], 
 											image_ai[name].width, image_ai[name].height)
-			jetson_utils.cudaDeviceSynchronize()
+
 			source_image = Image.open(filename)
 			draw = ImageDraw.Draw(source_image)
 
@@ -650,23 +636,20 @@ for name, jetson_videoSource in rtsp_streams.items():
 
 check_cameras_are_ok_on_startup()
 
+for camera, jetson_videoSource in rtsp_streams.items():
+	basic_stats[camera].reset()	
+
 # Main loop
 
 while True:
 	if StatsTimeoutCheck.expired():
-		logger.info("Processed %d images in the past %d seconds",images_processed, stats_update_seconds)
-		images_processed = 0
 		for camera, jetson_videoSource in rtsp_streams.items():
-			if jetson_videoSource: 
-				minimum,maximum,average,count_events_exceeding_threshold,count,threshold = basic_stats[camera].getstats()
-				logger.info("%s had %d images from %d exceeding motion threshold %.2f : min %.2f , max  %.2f, average %.2f", 
-								camera, count_events_exceeding_threshold, count, threshold, minimum, maximum, average)
-				basic_stats[camera].reset()
-				if count == 0:
-					# This should never happen but it does, NVIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
-					# Need network as well as application layer logic to handle properly i.e. reopen a camera when back up!
-					logger.error("Camera %s is not up, removing.", camera)
-					rtsp_streams[camera] = None
+			if jetson_videoSource:
+				minimum,maximum,average,count_events_exceeding_threshold,count,threshold = basic_stats[camera].getstats() 
+				if count != 0:		
+					logger.info("Processing images for %s at %d fps, %d percent exceeding motion threshold.", 
+								camera, round(count / stats_update_seconds), round((count_events_exceeding_threshold / count) * 100))
+					basic_stats[camera].reset()			
 		
 	if CameraRestartTimeoutCheck.expired():
 		for camera, jetson_videoSource in rtsp_streams.items():
@@ -715,7 +698,10 @@ while True:
 			try:
 				image = jetson_videoSource.Capture(format='rgb8', timeout = camera_down_timeout_ms)
 			except:
-				logger.debug("Timeout in getting image from %s", camera)
+				image = None
+				continue
+			if not image:
+				logger.info("Timeout in getting image from %s", camera)
 				try:
 					if not jetson_videoSource.IsStreaming():
 						# VNIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
@@ -724,77 +710,74 @@ while True:
 						rtsp_streams[camera] = None
 				except:
 					pass
-				continue
+					continue
 
-			images_processed = images_processed + 1
+			if image:
 
-			jetson_utils.cudaResize(image, image_ai[camera])
-			jetson_utils.cudaDeviceSynchronize()
+				jetson_utils.cudaResize(image, image_ai[camera])
 
-			movement = is_motion_detected(camera, image_ai[camera])
+				movement = is_motion_detected(camera, image_ai[camera])
 
-			if movement:
+				if movement:
 
-				detections = net.Detect(image_ai[camera], 
-							image_ai[camera].width, image_ai[camera].height, 'box,labels,conf')	
+					detections = net.Detect(image_ai[camera], 
+								image_ai[camera].width, image_ai[camera].height, 'box,labels,conf')	
+						
+					best_unfiltered_detection =	GetBestDetection(camera, detections, image_ai[camera].size)
 					
-				best_unfiltered_detection =	GetBestDetection(camera, detections, image_ai[camera].size)
-				
-				if best_unfiltered_detection:	
+					if best_unfiltered_detection:	
 
-					detected_class	= int(best_unfiltered_detection.ClassID)
-					eventclass		= label_name_index_array[detected_class]
-					confidence		= round(best_unfiltered_detection.Confidence, 2)
-					left			= int(best_unfiltered_detection.Left)
-					right			= int(best_unfiltered_detection.Right)
-					top				= int(best_unfiltered_detection.Top)		
-					bottom			= int(best_unfiltered_detection.Bottom)
+						detected_class	= int(best_unfiltered_detection.ClassID)
+						eventclass		= label_name_index_array[detected_class]
+						confidence		= round(best_unfiltered_detection.Confidence, 2)
+						left			= int(best_unfiltered_detection.Left)
+						right			= int(best_unfiltered_detection.Right)
+						top				= int(best_unfiltered_detection.Top)		
+						bottom			= int(best_unfiltered_detection.Bottom)
 
-					if not camera+eventclass in event_state_filter:
-						event_state_filter[camera+eventclass] = StatefulEventFilter(left, right, top, bottom, image_ai[camera].width, image_ai[camera].height)
-					
-					can_use_event, can_use_event_message = event_state_filter[camera+eventclass].filtered(left, right, top, bottom) 
+						if not camera+eventclass in event_state_filter:
+							event_state_filter[camera+eventclass] = StatefulEventFilter(left, right, top, bottom, image_ai[camera].width, image_ai[camera].height)
+						
+						can_use_event, can_use_event_message = event_state_filter[camera+eventclass].filtered(left, right, top, bottom) 
 
-					if can_use_event:
-		
-						timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S-%f")
-						image_path = image_storage_dir + camera + "/"				
-						image_filename	= timestamp + ".jpg"	
+						if can_use_event:
 			
-						new_image_filename = image_filename.split('-', 3)[-1] 
-						split = image_filename.split('-', 3)
-						image_filename_before_date  = split[0] + "-" + split[1] + "-" + split[2] 
-						new_image_path =  image_path +  image_filename_before_date + "/"
-
-						needs_alarmed = test_event_needs_alarmed(confidence, eventclass)
-
-						if not needs_alarmed:		
-							new_image_path = new_image_path + "not_alarmed/"
-	
-						image_location = new_image_path + new_image_filename
-
-						os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
-
-						jetson_utils.saveImageRGBA(image_location, image_ai[camera], image_ai[camera].width, image_ai[camera].height)
-
-						jetson_utils.cudaDeviceSynchronize()
+							timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S-%f")
+							image_path = image_storage_dir + camera + "/"				
+							image_filename	= timestamp + ".jpg"	
 				
-						sqlite_cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?,?,?)" , 
-								(camera, timestamp, eventclass , confidence, needs_alarmed,  
-									left, right, top, bottom, image_location))
+							new_image_filename = image_filename.split('-', 3)[-1] 
+							split = image_filename.split('-', 3)
+							image_filename_before_date  = split[0] + "-" + split[1] + "-" + split[2] 
+							new_image_path =  image_path +  image_filename_before_date + "/"
 
-						sqlite_connection.commit()
+							needs_alarmed = test_event_needs_alarmed(confidence, eventclass)
 
-						if needs_alarmed:					
-							message_needs_alarmed = camera + ":" + eventclass
-							if config.has_section("mqtt"):
-								mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
+							if not needs_alarmed:		
+								new_image_path = new_image_path + "not_alarmed/"
+		
+							image_location = new_image_path + new_image_filename
 
-							if config.has_section("smtp"):
-								send_smtp_message(camera, eventclass, image_location)
+							os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
 
-						logger.info("Event '%s' : %s - %s, confidence %.2f : %d,%d,%d,%d", 
-										can_use_event_message, camera, eventclass, confidence, left, right, top, bottom)	
-					else:
-						logger.debug("Filtered out event in StatefulEventFilter reason '%s', alarmed %d : %s - %s:%.2f %d,%d,%d,%d", 
-									can_use_event_message, needs_alarmed, camera, eventclass, confidence, left, right, top, bottom)
+							jetson_utils.saveImageRGBA(image_location, image_ai[camera], image_ai[camera].width, image_ai[camera].height)
+					
+							sqlite_cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?,?,?)" , 
+									(camera, timestamp, eventclass , confidence, needs_alarmed,  
+										left, right, top, bottom, image_location))
+
+							sqlite_connection.commit()
+
+							if needs_alarmed:					
+								message_needs_alarmed = camera + ":" + eventclass
+								if config.has_section("mqtt"):
+									mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
+
+								if config.has_section("smtp"):
+									send_smtp_message(camera, eventclass, image_location)
+
+							logger.info("Event '%s' : %s - %s, confidence %.2f : %d,%d,%d,%d", 
+											can_use_event_message, camera, eventclass, confidence, left, right, top, bottom)	
+						else:
+							logger.debug("Filtered out event in StatefulEventFilter reason '%s', alarmed %d : %s - %s:%.2f %d,%d,%d,%d", 
+										can_use_event_message, needs_alarmed, camera, eventclass, confidence, left, right, top, bottom)

@@ -29,7 +29,7 @@ if [ ! -d "$FOLDER" ] ; then
 	mkdir $FOLDER
 fi
 cd $FOLDER
-cmake ../ 
+cmake -DENABLE_NVMM=off ../ 
 sudo make install
 sudo ldconfig
 cd ../..
@@ -43,6 +43,8 @@ fi
 cd "$FOLDER"
 git submodule update --init
 git pull
+
+sed -i 's/DEFAULT=VERBOSE/DEFAULT=ERROR/' logging.h
 
 FOLDER="build"
 if [ ! -d "$FOLDER" ] ; then

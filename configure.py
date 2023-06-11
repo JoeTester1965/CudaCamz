@@ -58,14 +58,22 @@ if not os.path.exists(video_storage_dir):
 startup_amendments.write("nohup ./limit-directory-size.sh " + video_storage_dir  + " " + video_storage_dir_percent  + " 10  > /dev/null 2>&1 < /dev/null &\n")
 startup_amendments.write("nohup ./limit-directory-size.sh " + image_storage_dir  + " " + image_storage_dir_percent + " 100  > /dev/null 2>&1 < /dev/null &\n\n")
 
-global cameras
-cameras = dict(config['cameras'])
+global camerasAI
+camerasAI = dict(config['camerasAI'])
+
+global camerasREC
+camerasREC = dict(config['camerasREC'])
 
 copyfile("mediamtx/mediamtx.yml.original", "mediamtx/mediamtx.yml")
 
 rtsp_amendments = open("mediamtx/mediamtx.yml", 'a')
 
-for camera_details, uri in cameras.items():
+for camera_details, uri in camerasAI.items():
+	friendly_name, camera_type = camera_details.split(',')
+	rtsp_amendments.write("  " + friendly_name + ":\n")
+	rtsp_amendments.write("    source: " + uri + "\n")
+
+for camera_details, uri in camerasREC.items():
 	friendly_name, camera_type = camera_details.split(',')
 	rtsp_amendments.write("  " + friendly_name + ":\n")
 	rtsp_amendments.write("    source: " + uri + "\n")
@@ -75,10 +83,14 @@ rtsp_amendments.close()
 using_rtsp_simple_proxy = int(config["general"]["using_rtsp_simple_proxy"])
 
 if using_rtsp_simple_proxy:
-	for camera_details, uri in cameras.items():
+	for camera_details, uri in camerasAI.items():
 		friendly_name, camera_type = camera_details.split(',')
 		if using_rtsp_simple_proxy:
-			cameras[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
+			camerasAI[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
+	for camera_details, uri in camerasREC.items():
+		friendly_name, camera_type = camera_details.split(',')
+		if using_rtsp_simple_proxy:
+			camerasAI[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
 
 	startup_amendments.write("cd " + cwd + "/mediamtx\n")
 	startup_amendments.write("nohup ./mediamtx > /dev/null 2>&1 < /dev/null &\n")
@@ -91,7 +103,8 @@ recorder_amendments.write("#!/bin/sh\n\n")
 recorder_amendments.write("sleep 10\n\n")
 recorder_amendments.write("while true; do\n\n")
 recorder_amendments.write("NOW=$(date +\"%d-%m-%Y-%H-%M-%S\")\n\n")
-for camera_details, uri in cameras.items():
+
+for camera_details, uri in camerasREC.items():
 
 	friendly_name, camera_type = camera_details.split(',')
 
