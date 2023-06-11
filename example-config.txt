@@ -1,7 +1,15 @@
-[cameras]
+[camerasAI]
 
+# Cameras for AI processing
 # friendly-name, type, uri
 # types can be : h264 | h265 | vp8 | vp9 | mpeg2 | mpeg4 | mjpeg as defined by Nvidia APIs.
+
+ThisCamera,h264 = rtsp://192.168.1.10:554/user=username&password=12345&channel=1&stream=1.sdp
+ThatCamera,h265 = rtsp://192.168.1.53:8554/ThatUri
+
+[camerasREC]
+
+# Cameras for recording
 
 ThisCamera,h264 = rtsp://192.168.1.10:554/user=username&password=12345&channel=1&stream=0.sdp
 ThatCamera,h265 = rtsp://192.168.1.53:8554/ThatUri
