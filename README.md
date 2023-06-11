@@ -14,7 +14,7 @@ Uses an (optional) very network efficient [RTSP proxy mediamtx ney rtspproxy](ht
 
 ![!](./scope.jpg "")
 
-You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./config.txt):
+You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./example-config.txt):
 
 1. **[label_alarmlist]** sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given confidence threshold. Examine your logfiles and/or database to see what is coming in.
 
