@@ -1,3 +1,1 @@
-Motion mask for cameras - base on startup image - paint black and white.
-
 email as a separate thread and with a messages per hour limit per camera, default 10!
