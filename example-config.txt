@@ -1,6 +1,6 @@
 [camerasAI]
 
-# Cameras for AI processing
+# Camera streams for AI processing
 # friendly-name, type, uri
 # types can be : h264 | h265 | vp8 | vp9 | mpeg2 | mpeg4 | mjpeg as defined by Nvidia APIs.
 
@@ -9,31 +9,31 @@ ThatCamera,h265 = rtsp://192.168.1.53:8554/ThatUri
 
 [camerasREC]
 
-# Cameras for recording
+# Cameras streams for recording
 
 ThisCamera,h264 = rtsp://192.168.1.10:554/user=username&password=12345&channel=1&stream=0.sdp
 ThatCamera,h265 = rtsp://192.168.1.53:8554/ThatUri
 
 [general]
 
-# Set to 0 for more less detail in the logfile after you are happy with your config file
-logging_level_debug = 1
+# Set to 1 for more detail in the logfile 
+logging_level_debug = 0
 
 # Set the paths for images and video below to what works for you on your jetson nano
 # Recommend using a usb3 hdd with samba installed and configured to see files on your network
-# Note that x_storage_dir_percent is percentage of total disk allocated2uni
+# Note that x_storage_dir_percent is percentage of total disk allocated
 
 logfile = /tmp/logfile.txt
 
 image_storage_dir = /tmp/images/
-image_storage_dir_percent = 10
+image_storage_dir_percent = 5
 mutelist_reminder_folder = /tmp/mutelist_reminder
 
 # Set to 1 to record all video
 recording_all_video = 0
 
 video_storage_dir = /tmp/videos/
-video_storage_dir_percent = 60
+video_storage_dir_percent = 15
 video_storage_slice_minutes = 60
 
 # Do not use this yet, but could be useful for producing fancy stats
@@ -50,7 +50,7 @@ baseline_model_confidence = 0.5
 time_to_ignore_repeating_object_seconds = 60
 bounding_box_fraction = 0.1
 
-# Recommend using this, having multiple streams for video recording, AI event sensing (done here)
+# You may want to use this as having multiple streams for video recording, AI event sensing (done here)
 # and live monitoring (I use vlc) can overwhelm your cameras and or network. 
 # The remapped URI for your cameras is logged on startup.
 
@@ -71,7 +71,7 @@ stats_update_seconds = 60
 [motion_detect_settings]
 
 # For motion detection, want to resample ai_resize_factor down yet again for both performance and efficacy.
-motion_resize_factor = 0.25
+motion_resize_factor = 0.5
 
 # If you have only a small number of cameras and are able to keep up with a high camera frame rate 
 # you may want to increase this to 2 or 3 so that a frame is compared with a slightly older one
@@ -85,7 +85,7 @@ frame_check_delta = 1
 movement_delta_threshold = 5
 
 # % of frame that needs a valid difference for motion detect to be triggered, frame then passed on for AI event detection.
-movement_hits_threshold_percent = 5.0 
+movement_hits_threshold_percent = 2.5 
 
 # Alarm - (MQTT and SMTP as defined at bottom of this file) for these labels above given threshold
 [label_alarmlist]
@@ -133,14 +133,16 @@ hedge = 100,550,50,250
 hose&reel = 475,575,125,300
 
 # Look up on Google if you want to install a MQTT server on your Jetson (is simplez), or use another!
-[mqtt]
-mqtt_ip_address = 127.0.0.1
-mqtt_username = username
-mqtt_password = password
-mqtt_topic = CudaCam
+#[mqtt]
+#mqtt_ip_address = 127.0.0.1
+#mqtt_username = username
+#mqtt_password = password
+#mqtt_topic = CudaCam
 
 # Reccomend using a disposable email address for this sort thing, as is a low security option!
-[smtp]
-sender_email = thisemail@whatever.com
-receiver_email = thatemail@whoever.com
-smtp_password = 12345
+#
+# NOTE : using this will slow AI processing down, still need to implement a managed non-blocking queue.
+#[smtp]
+#sender_email = thisemail@whatever.com
+#receiver_email = thatemail@whoever.com
+#smtp_password = 12345
