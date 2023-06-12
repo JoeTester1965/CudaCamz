@@ -1,1 +1,1 @@
-email as a separate thread and with a messages per hour limit per camera, default 10!
+Managed non blocking queue for email option.
