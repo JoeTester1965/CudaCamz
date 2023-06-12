@@ -2,12 +2,12 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/CudaCam/v16/.suo
-/.vs
-/.vscode
-config.txt
-start.sh
-recorder.sh
+/.vs/
+/.vscode/
 mediamtx/
 jetson-inference/
 jetson-utils/
+config.txt
+start.sh
+recorder.sh
+
