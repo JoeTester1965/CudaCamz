@@ -5,7 +5,7 @@
 /.vs/CudaCam/v16/.suo
 /.vs
 /.vscode
-example-config.txt
+config.txt
 start.sh
 recorder.sh
 mediamtx/
