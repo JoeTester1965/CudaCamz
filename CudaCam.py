@@ -470,6 +470,7 @@ def GetBestDetection(camera, detections, detection_image_size):
 
 		if needs_alarmed:
 			# a detection event needs alarmed so take that one without looking any further
+			best_unfiltered_detection = detections[index]
 			return best_unfiltered_detection
 
 		if not best_unfiltered_detection:
