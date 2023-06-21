@@ -777,7 +777,7 @@ while True:
 								if config.has_section("smtp"):
 									send_smtp_message(camera, eventclass, image_location)
 
-							logger.info("Event '%s' : %s - %s, confidence %.2f : %d,%d,%d,%d", 
+							logger.debug("Event '%s' : %s - %s, confidence %.2f : %d,%d,%d,%d", 
 											can_use_event_message, camera, eventclass, confidence, left, right, top, bottom)	
 						else:
 							logger.debug("Filtered out event in StatefulEventFilter reason '%s', alarmed %d : %s - %s:%.2f %d,%d,%d,%d", 
