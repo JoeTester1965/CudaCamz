@@ -28,8 +28,8 @@ camera_ip_address = {}
 rtsp_streams = {}
 object_mutelist_inside = {}
 object_mutelist_outside = {}
-event_state_filter = {}
 basic_stats = {}
+multiple_event_TimeoutCheck = {}
 image_ai = {}
 image_bw = {}
 resized_image_bw = {}
@@ -114,11 +114,8 @@ def read_config(config_file):
 	global stats_update_seconds
 	stats_update_seconds = int(config["general"]["stats_update_seconds"])
 
-	global time_to_ignore_repeating_object_seconds
-	time_to_ignore_repeating_object_seconds = int(config["general"]["time_to_ignore_repeating_object_seconds"])
-
-	global bounding_box_fraction
-	bounding_box_fraction = float(config["general"]["bounding_box_fraction"])
+	global multiple_event_alarm_window
+	multiple_event_alarm_window = float(config["general"]["multiple_event_alarm_window"])
 
 	global mutelist_reminder_folder
 	mutelist_reminder_folder = config["general"]["mutelist_reminder_folder"]
@@ -251,74 +248,19 @@ class BasicStatsAgainstThreshold:
 class TimeoutCheck:
 
 	def __init__(self, seconds_to_expire):
-		self._start_time = time.perf_counter()
+		self._start_time = 0
 		self._seconds_to_expire = seconds_to_expire
 
-	def reset(self):
-		if self._start_time is None:
-			return None
+	def start(self):
 		self._start_time = time.perf_counter()
 
 	def expired(self):
-		if self._start_time is None:
-			return None
 		elapsed_time = time.perf_counter() - self._start_time
 		if elapsed_time > self._seconds_to_expire:
 			self._start_time = time.perf_counter()
 			return True
 		else:
 			return False
-
-def resize_bounding_box (left, right, top, bottom, image_width, image_height):
-
-	bounding_box_width = abs(right - left)
-	bounding_box_height = abs(bottom - top)
-
-	offset_width = int((bounding_box_width * bounding_box_fraction) / 2)
-	offset_height = int((bounding_box_height * bounding_box_fraction) / 2)	
-	
-	new_left = left - offset_width
-	if new_left < 0:
-		new_left = 0
-
-	new_right = right + offset_width
-	if new_right >= image_width:
-		new_right = image_width - 1
-
-	new_top = top - offset_width
-	if new_top < 0:
-		new_top = 0
-
-	new_bottom = bottom + offset_width
-	if new_bottom >= image_height:
-		new_bottom = image_height- 1
-
-	return new_left, new_right, new_top, new_bottom
-
-class StatefulEventFilter:
-	def __init__(self, left, right, top, bottom, width, height):
-		
-		self._left, self._right, self._top, self._bottom = resize_bounding_box(left, right, top, bottom, width, height)
-		self._width = width
-		self._height = height
-		self._TimeoutCheck = TimeoutCheck(time_to_ignore_repeating_object_seconds)
-		self._just_initialised = True
-
-	def filtered(self, left, right, top, bottom):
-		if self._just_initialised == True:
-			self._just_initialised = False
-			return True, "Initialised"
-		else:
-			if (left > self._left) and (right < self._right) and (top > self._top) and (bottom < self._bottom):
-				if self._TimeoutCheck.expired() == True:
-					self._TimeoutCheck.reset()
-					return True, "TimeoutCheck expired"
-				else:
-					return False, "TimeoutCheck not expired"
-			else:
-				self._left, self._right, self._top, self._bottom = resize_bounding_box(left, right, top, bottom, self._width, self._height)
-				self._TimeoutCheck.reset()
-				return True, "Has moved"
 
 class FrameBuffer:
 
@@ -424,16 +366,20 @@ def send_smtp_message(camera, eventclass, image):
 				server.login(sender_email, smtp_password)
 				server.sendmail(sender_email, receiver_email, text)
 			except:
-				smtp_down = True;
+				smtp_down = True
 
-def test_event_needs_alarmed(confidence, eventclass): 
+def test_event_needs_alarmed(camera, confidence, eventclass): 
 	
 	retval = False
-	
 	try:
 		configured_confidence_threshold = float(label_alarmlist[eventclass])
 		if confidence > float(configured_confidence_threshold):
-			retval = True
+			switch_variable = multiple_event_TimeoutCheck[camera].expired()
+			if switch_variable == False:
+				retval = True
+			if switch_variable == True:
+				multiple_event_TimeoutCheck[camera].start()
+				retval = False
 	except:
 		pass
 
@@ -466,9 +412,8 @@ def GetBestDetection(camera, detections, detection_image_size):
 		if not best_unfiltered_detection:
 			best_unfiltered_detection = detections[index]
 
-		needs_alarmed = test_event_needs_alarmed(confidence, eventclass)
-
-		if needs_alarmed:
+		configured_confidence_threshold = float(label_alarmlist[eventclass])
+		if confidence > float(configured_confidence_threshold):
 			# a detection event needs alarmed so take that one without looking any further
 			best_unfiltered_detection = detections[index]
 			return best_unfiltered_detection
@@ -533,6 +478,8 @@ for camera_details, uri in cameras.items():
 		cameras[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
 		logger.info("Remapped %s to %s as using_rtsp_simple_proxy set", uri, cameras[camera_details])
 	basic_stats[friendly_name] = BasicStatsAgainstThreshold(movement_hits_threshold_percent)
+	multiple_event_TimeoutCheck[friendly_name] = TimeoutCheck(multiple_event_alarm_window)
+	multiple_event_TimeoutCheck[friendly_name].start()
 	input_codec_string = "----input-codec=" + camera_type
 	rtsp_streams[friendly_name] = jetson_utils.videoSource(uri, ['me', input_codec_string])
 
@@ -572,8 +519,10 @@ if config.has_section("mqtt"):
 	mqtt_client.loop_start() 
 
 StatsTimeoutCheck = TimeoutCheck(stats_update_seconds)
+StatsTimeoutCheck.start()
 
 CameraRestartTimeoutCheck = TimeoutCheck(camera_attempt_restart_timer)
+CameraRestartTimeoutCheck.start()
 
 logger.info("Starting cameras and getting test images for %s, can take a while", mutelist_reminder_folder)
 
@@ -735,50 +684,44 @@ while True:
 						right			= int(best_unfiltered_detection.Right)
 						top				= int(best_unfiltered_detection.Top)		
 						bottom			= int(best_unfiltered_detection.Bottom)
-
-						if not camera+eventclass in event_state_filter:
-							event_state_filter[camera+eventclass] = StatefulEventFilter(left, right, top, bottom, image_ai[camera].width, image_ai[camera].height)
-						
-						can_use_event, can_use_event_message = event_state_filter[camera+eventclass].filtered(left, right, top, bottom) 
-
-						if can_use_event:
 			
-							timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S-%f")
-							image_path = image_storage_dir + camera + "/"				
-							image_filename	= timestamp + ".jpg"	
+						timestamp = datetime.now().strftime("%d-%m-%Y-%H-%M-%S-%f")
+						image_path = image_storage_dir + camera + "/"				
+						image_filename	= timestamp + ".jpg"	
 				
-							new_image_filename = image_filename.split('-', 3)[-1] 
-							split = image_filename.split('-', 3)
-							image_filename_before_date  = split[0] + "-" + split[1] + "-" + split[2] 
-							new_image_path =  image_path +  image_filename_before_date + "/"
+						new_image_filename = image_filename.split('-', 3)[-1] 
+						split = image_filename.split('-', 3)
+						image_filename_before_date  = split[0] + "-" + split[1] + "-" + split[2] 
+						new_image_path =  image_path +  image_filename_before_date + "/"
+						x = round((left + (right - left)/2)/image_ai[camera].width,2)
+						y = round((image_ai[camera].height - (top + (bottom - top)/2))/image_ai[camera].height,2)
+						needs_alarmed = test_event_needs_alarmed(camera, confidence, eventclass)
 
-							needs_alarmed = test_event_needs_alarmed(confidence, eventclass)
+						if not needs_alarmed:		
+							new_image_path = new_image_path + "not_alarmed/"
+	
+						image_location = new_image_path + new_image_filename
 
-							if not needs_alarmed:		
-								new_image_path = new_image_path + "not_alarmed/"
-		
-							image_location = new_image_path + new_image_filename
+						os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
 
-							os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
-
-							jetson_utils.saveImageRGBA(image_location, image_ai[camera], image_ai[camera].width, image_ai[camera].height)
+						jetson_utils.saveImageRGBA(image_location, image_ai[camera], image_ai[camera].width, image_ai[camera].height)
 					
-							sqlite_cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?,?,?)" , 
-									(camera, timestamp, eventclass , confidence, needs_alarmed,  
-										left, right, top, bottom, image_location))
+						sqlite_cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?,?,?)" , 
+								(camera, timestamp, eventclass , confidence, needs_alarmed,  
+									left, right, top, bottom, image_location))
 
-							sqlite_connection.commit()
+						sqlite_connection.commit()
 
-							if needs_alarmed:					
-								message_needs_alarmed = camera + ":" + eventclass
-								if config.has_section("mqtt"):
-									mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
+						if needs_alarmed:					
+							message_needs_alarmed = camera + ":" + eventclass + ":" + str(x) + "," + str(y)
+							if config.has_section("mqtt"):
+								mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
 
-								if config.has_section("smtp"):
-									send_smtp_message(camera, eventclass, image_location)
+							if config.has_section("smtp"):
+								send_smtp_message(camera, eventclass, image_location)
 
-							logger.debug("Event '%s' : %s - %s, confidence %.2f : %d,%d,%d,%d", 
-											can_use_event_message, camera, eventclass, confidence, left, right, top, bottom)	
+							logger.info("Event alarmed %s - %s : confidence %.2f : %.2f,%.2f", 
+											camera, eventclass, confidence, x, y)
 						else:
-							logger.debug("Filtered out event in StatefulEventFilter reason '%s', alarmed %d : %s - %s:%.2f %d,%d,%d,%d", 
-										can_use_event_message, needs_alarmed, camera, eventclass, confidence, left, right, top, bottom)
+							logger.debug("Event not alarmed %s - %s : confidence %.2f : %.2f,%.2f", 
+											camera, eventclass, confidence, x, y)
