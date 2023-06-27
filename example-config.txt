@@ -46,7 +46,7 @@ label_filename = ./ssd_coco_labels.txt
 # This seems to work ok as a golbal baseline, can tune up or down but be mindful of [label_alarmlist]
 baseline_model_confidence = 0.5
 
-# Only alarm if more than one event happens within this timeout period
+# Only alarm if more than one event happens within this timeout period (seconds)
 multiple_event_alarm_window = 1.0
 
 # You may want to use this as having multiple streams for video recording, AI event sensing (done here)
