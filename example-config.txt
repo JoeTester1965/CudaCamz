@@ -47,7 +47,7 @@ label_filename = ./ssd_coco_labels.txt
 baseline_model_confidence = 0.5
 
 # Only alarm if more than one event happens within this timeout period
-multiple_event_alarm_window = 0.5
+multiple_event_alarm_window = 1.0
 
 # You may want to use this as having multiple streams for video recording, AI event sensing (done here)
 # and live monitoring (I use vlc) can overwhelm your cameras and or network. 
