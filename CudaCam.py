@@ -29,6 +29,7 @@ rtsp_streams = {}
 object_mutelist_inside = {}
 object_mutelist_outside = {}
 basic_stats = {}
+multiple_event_TimeoutCheck = {}
 image_ai = {}
 image_bw = {}
 resized_image_bw = {}
@@ -370,7 +371,12 @@ def test_event_needs_alarmed(camera, confidence, eventclass):
 	try:
 		configured_confidence_threshold = float(label_alarmlist[eventclass])
 		if confidence > float(configured_confidence_threshold):
-			retval = True
+			switch_variable = multiple_event_TimeoutCheck[camera].expired()
+			if switch_variable == False:
+				retval = True
+			if switch_variable == True:
+				multiple_event_TimeoutCheck[camera].start()
+				retval = False
 	except:
 		pass
 
@@ -468,6 +474,8 @@ for camera_details, uri in cameras.items():
 		cameras[camera_details]="rtsp://127.0.0.1:8554/" + friendly_name
 		logger.info("Remapped %s to %s as using_rtsp_simple_proxy set", uri, cameras[camera_details])
 	basic_stats[friendly_name] = BasicStatsAgainstThreshold(movement_hits_threshold_percent)
+	multiple_event_TimeoutCheck[friendly_name] = TimeoutCheck(multiple_event_alarm_window)
+	multiple_event_TimeoutCheck[friendly_name].start()
 	input_codec_string = "----input-codec=" + camera_type
 	rtsp_streams[friendly_name] = jetson_utils.videoSource(uri, ['me', input_codec_string])
 
