@@ -708,8 +708,8 @@ while True:
 							if config.has_section("smtp"):
 								send_smtp_message(camera, eventclass, image_location)
 
-							logger.info("Event alarmed %s - %s : confidence %.2f : %.2f,%.2f", 
+							logger.info("Event alarmed %s - %s : confidence %.2f : x,y : %.2f,%.2f", 
 											camera, eventclass, confidence, x, y)
 						else:
-							logger.debug("Event not alarmed %s - %s : confidence %.2f : %.2f,%.2f", 
+							logger.debug("Event not alarmed %s - %s : confidence %.2f : x,y : %.2f,%.2f", 
 											camera, eventclass, confidence, x, y)
