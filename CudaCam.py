@@ -701,7 +701,7 @@ while True:
 						sqlite_connection.commit()
 
 						if needs_alarmed:					
-							message_needs_alarmed = camera + ":" + eventclass + ":" + str(x) + "," + str(y)
+							message_needs_alarmed = camera + ":" + eventclass + ":" + str(x) + " " + str(y)
 							if config.has_section("mqtt"):
 								mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
 
