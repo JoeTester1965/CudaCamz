@@ -46,14 +46,6 @@ label_filename = ./ssd_coco_labels.txt
 # This seems to work ok as a golbal baseline, can tune up or down but be mindful of [label_alarmlist]
 baseline_model_confidence = 0.5
 
-<<<<<<< HEAD
-# Only alarm if more than one event happens within this timeout period
-multiple_event_alarm_window = 0.5
-=======
-# Only alarm if more than one event happens within this timeout period (seconds)
-multiple_event_alarm_window = 1.0
->>>>>>> d405c33dd998e72611a27d7107f8a7e1de502e75
-
 # You may want to use this as having multiple streams for video recording, AI event sensing (done here)
 # and live monitoring (I use vlc) can overwhelm your cameras and or network. 
 # The remapped URI for your cameras is logged on startup.
