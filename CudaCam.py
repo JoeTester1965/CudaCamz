@@ -369,7 +369,7 @@ def test_event_needs_alarmed(camera, confidence, eventclass):
 	retval = False
 	try:
 		configured_confidence_threshold = float(label_alarmlist[eventclass])
-		if confidence > float(configured_confidence_threshold):
+		if confidence >= float(configured_confidence_threshold):
 			retval = True
 	except:
 		pass
