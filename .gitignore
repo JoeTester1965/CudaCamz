@@ -8,10 +8,6 @@ mediamtx/
 jetson-inference/
 jetson-utils/
 config.txt
-<<<<<<< HEAD
 26-06-2023-16-09-28.mp4
-=======
-start.sh
 recorder.sh
-
->>>>>>> d405c33dd998e72611a27d7107f8a7e1de502e75
+start.sh
