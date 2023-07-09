@@ -640,15 +640,8 @@ while True:
 				continue
 			if not image:
 				logger.info("Timeout in getting image from %s", camera)
-				try:
-					if not jetson_videoSource.IsStreaming():
-						# VNIDIA API rubbish at detecting and dealing with cameras going offline - just relies on a big buffer.
-						# Need network as well as application layer logic to handle properly i.e. reopen a camera when back up!
-						logger.error("Camera %s is not up, removing.", camera)
-						rtsp_streams[camera] = None
-				except:
-					pass
-					continue
+				logger.error("Camera %s is not up, removing.", camera)
+				rtsp_streams[camera] = None
 
 			if image:
 
