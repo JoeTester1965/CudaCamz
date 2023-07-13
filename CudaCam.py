@@ -382,7 +382,6 @@ def GetBestDetection(camera, detections, detection_image_size):
 
 	for detection in detections:
 
-		index			= detection.Instance
 		detected_class	= int(detection.ClassID)
 		eventclass		= label_name_index_array[detected_class]
 		confidence		= round(detection.Confidence, 2)
@@ -401,18 +400,18 @@ def GetBestDetection(camera, detections, detection_image_size):
 			continue
 
 		if not best_unfiltered_detection:
-			best_unfiltered_detection = detections[index]
+			best_unfiltered_detection = detection
 
 		if test_event_needs_alarmed(camera, confidence, eventclass) == True:
 			# a detection event needs alarmed so take that one without looking any further
-			best_unfiltered_detection = detections[index]
+			best_unfiltered_detection = detection
 			return best_unfiltered_detection
 
 		if not best_unfiltered_detection:
-			best_unfiltered_detection = detections[index]
+			best_unfiltered_detection = detection
 		else:
 			if confidence > round(best_unfiltered_detection.Confidence, 2):
-				best_unfiltered_detection = detections[index]
+				best_unfiltered_detection = detection
 
 	return best_unfiltered_detection
 
