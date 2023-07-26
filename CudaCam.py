@@ -646,6 +646,8 @@ while True:
 
 				if ai_resize_factor != 1.0:
 					jetson_utils.cudaResize(image, image_ai[camera])
+				else:
+					image_ai[camera] = image
 
 				if movement_hits_threshold_percent > 0.0:
 					movement = is_motion_detected(camera, image_ai[camera])
