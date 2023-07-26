@@ -582,7 +582,7 @@ while True:
 	if StatsTimeoutCheck.expired():
 		for camera, jetson_videoSource in rtsp_streams.items():
 			if jetson_videoSource:
-				minimum,maximum,average,count_events_exceeding_threshold,count,threshold = basic_stats[camera].getstats() 
+				minimum,maximum,average,count_events_exceeding_threshold,count,threshold = basic_stats[camera].getstats()
 				if count != 0:		
 					logger.info("Processing images for %s at %d fps, %d percent exceeding motion threshold.", 
 								camera, round(count / stats_update_seconds), round((count_events_exceeding_threshold / count) * 100))
@@ -644,9 +644,14 @@ while True:
 
 			if image:
 
-				jetson_utils.cudaResize(image, image_ai[camera])
+				if ai_resize_factor != 1.0:
+					jetson_utils.cudaResize(image, image_ai[camera])
 
-				movement = is_motion_detected(camera, image_ai[camera])
+				if movement_hits_threshold_percent > 0.0:
+					movement = is_motion_detected(camera, image_ai[camera])
+				else:
+					basic_stats[camera].update(100.0)
+					movement = True
 
 				if movement:
 
