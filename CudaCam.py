@@ -366,11 +366,13 @@ def send_smtp_message(camera, eventclass, image):
 
 def test_event_needs_alarmed(camera, confidence, eventclass): 
 	
-	retval = False
+	retval = True
 	try:
 		configured_confidence_threshold = float(label_alarmlist[eventclass])
 		if confidence >= float(configured_confidence_threshold):
 			retval = True
+		else:
+			retval = False
 	except:
 		pass
 
