@@ -644,6 +644,8 @@ while True:
 
 			if image:
 
+				movement = False
+
 				if ai_resize_factor != 1.0:
 					jetson_utils.cudaResize(image, image_ai[camera])
 				else:
