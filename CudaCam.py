@@ -95,7 +95,7 @@ def read_config(config_file):
 	label_file_name = config["general"]["label_filename"]
 
 	global baseline_model_confidence
-	baseline_model_confidence = config["general"]["baseline_model_confidence"]
+	baseline_model_confidence = float(config["general"]["baseline_model_confidence"])
 
 	global label_name_index_array
 	with open(label_file_name, "r") as filehandle:
@@ -473,7 +473,7 @@ for camera_details, uri in cameras.items():
 	rtsp_streams[friendly_name] = jetson_utils.videoSource(uri, ['me', input_codec_string])
 
 logger.info("Starting inference engine, can take a while")
-net = jetson_inference.detectNet("ssd-mobilenet-v2", baseline_model_confidence)
+net = jetson_inference.detectNet("ssd-mobilenet-v2", threshold=baseline_model_confidence)
 logger.info("Inference engine is up")
 
 sqlite_connection = sqlite3.connect(sqlite_db)
