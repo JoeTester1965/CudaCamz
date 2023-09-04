@@ -68,7 +68,10 @@ def read_config(config_file):
 			pass
 
 	global label_mutelist
-	label_mutelist = config["label_mutelist"]["labels"]
+	try:
+		label_mutelist = config["label_mutelist"]["labels"]
+	except:
+		label_mutelist = ""
 
 	global ai_resize_factor
 	ai_resize_factor = float(config["general"]["ai_resize_factor"])
@@ -82,8 +85,8 @@ def read_config(config_file):
 	global camera_starting_up_timeout
 	camera_starting_up_timeout = int(config["general"]["camera_starting_up_timeout"])
 
-	global label_alarmlist
-	label_alarmlist = dict(config['label_alarmlist'])
+	global label_alarmlist_confidence_override
+	label_alarmlist_confidence_override = dict(config['label_alarmlist_confidence_override'])
 
 	global label_percent_screenfill_min
 	label_percent_screenfill_min = dict(config['label_percent_screenfill_min'])
@@ -368,7 +371,7 @@ def test_event_needs_alarmed(camera, confidence, eventclass):
 	
 	retval = True
 	try:
-		configured_confidence_threshold = float(label_alarmlist[eventclass])
+		configured_confidence_threshold = float(label_alarmlist_confidence_override[eventclass])
 		if confidence >= float(configured_confidence_threshold):
 			retval = True
 		else:
@@ -684,18 +687,11 @@ while True:
 						split = image_filename.split('-', 3)
 						image_filename_before_date  = split[0] + "-" + split[1] + "-" + split[2] 
 						new_image_path =  image_path +  image_filename_before_date + "/"
+						image_location = new_image_path + new_image_filename
 						x = round((left + (right - left)/2)/image_ai[camera].width,2)
 						y = round((image_ai[camera].height - (top + (bottom - top)/2))/image_ai[camera].height,2)
+						
 						needs_alarmed = test_event_needs_alarmed(camera, confidence, eventclass)
-
-						if not needs_alarmed:		
-							new_image_path = new_image_path + "not_alarmed/"
-	
-						image_location = new_image_path + new_image_filename
-
-						os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
-
-						jetson_utils.saveImageRGBA(image_location, image_ai[camera], image_ai[camera].width, image_ai[camera].height)
 					
 						sqlite_cursor.execute("INSERT INTO events VALUES (?,?,?,?,?,?,?,?,?,?)" , 
 								(camera, timestamp, eventclass , confidence, needs_alarmed,  
@@ -703,7 +699,12 @@ while True:
 
 						sqlite_connection.commit()
 
-						if needs_alarmed:					
+						if needs_alarmed:
+
+							os.makedirs(os.path.dirname(new_image_path), exist_ok=True)
+							
+							jetson_utils.saveImageRGBA(image_location, image_ai[camera], image_ai[camera].width, image_ai[camera].height)
+							
 							message_needs_alarmed = camera + ":" + eventclass + ":" + str(x) + " " + str(y)
 							if config.has_section("mqtt"):
 								mqtt_client.publish(mqtt_topic, message_needs_alarmed) 
