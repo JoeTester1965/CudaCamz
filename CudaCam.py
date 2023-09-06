@@ -149,7 +149,12 @@ def read_config(config_file):
 	except:
 		pass
 
+	global smtp_update_seconds
+	smtp_update_seconds = 60
+
 	try:
+		smtp_update_seconds = int(config["general"]["stats_update_seconds"])
+
 		global sender_email
 		sender_email = config["smtp"]["sender_email"]
 
@@ -333,39 +338,41 @@ def send_smtp_message(camera, eventclass, image):
 
 	global smtp_down
 	
-	if not smtp_down:
+	if SmtpTimeoutCheck.expired():
 
-		subject = camera
-		body = eventclass
-		message = MIMEMultipart()
-		message["From"] = sender_email
-		message["To"] = receiver_email
-		message["Subject"] = subject
-	
-		message.attach(MIMEText(body, "plain"))
-	
-		filename = image
-		with open(filename, "rb") as attachment:
-			part = MIMEBase("application", "octet-stream")
-			part.set_payload(attachment.read())
+		if not smtp_down:
 
-		encoders.encode_base64(part)
+			subject = camera
+			body = eventclass
+			message = MIMEMultipart()
+			message["From"] = sender_email
+			message["To"] = receiver_email
+			message["Subject"] = subject
+		
+			message.attach(MIMEText(body, "plain"))
+		
+			filename = image
+			with open(filename, "rb") as attachment:
+				part = MIMEBase("application", "octet-stream")
+				part.set_payload(attachment.read())
 
-		part.add_header(
-			"Content-Disposition",
-			f"attachment; filename= {filename}",
-		)
+			encoders.encode_base64(part)
 
-		message.attach(part)
-		text = message.as_string()
+			part.add_header(
+				"Content-Disposition",
+				f"attachment; filename= {filename}",
+			)
 
-		context = ssl.create_default_context()
-		with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-			try:
-				server.login(sender_email, smtp_password)
-				server.sendmail(sender_email, receiver_email, text)
-			except:
-				smtp_down = True
+			message.attach(part)
+			text = message.as_string()
+
+			context = ssl.create_default_context()
+			with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+				try:
+					server.login(sender_email, smtp_password)
+					server.sendmail(sender_email, receiver_email, text)
+				except:
+					smtp_down = True
 
 def test_event_needs_alarmed(camera, confidence, eventclass): 
 	
@@ -512,6 +519,9 @@ if config.has_section("mqtt"):
 
 StatsTimeoutCheck = TimeoutCheck(stats_update_seconds)
 StatsTimeoutCheck.start()
+
+SmtpTimeoutCheck = TimeoutCheck(smtp_update_seconds)
+SmtpTimeoutCheck.start()
 
 CameraRestartTimeoutCheck = TimeoutCheck(camera_attempt_restart_timer)
 CameraRestartTimeoutCheck.start()

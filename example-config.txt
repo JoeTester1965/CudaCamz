@@ -137,8 +137,9 @@ hose&reel = 475,575,125,300
 
 # Reccomend using a disposable email address for this sort thing, as is a low security option!
 #
-# NOTE : using this will slow AI processing down, still need to implement a managed non-blocking queue.
+# NOTE : using this to often will slow AI processing down adn annoy your email provider hence only one message per smtp_update_seconds allowed
 #[smtp]
+#smtp_update_seconds = 60
 #sender_email = thisemail@whatever.com
 #receiver_email = thatemail@whoever.com
 #smtp_password = 12345
