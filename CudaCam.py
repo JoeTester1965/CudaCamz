@@ -149,11 +149,12 @@ def read_config(config_file):
 	except:
 		pass
 
-	global smtp_update_seconds
-	smtp_update_seconds = 60
 
 	try:
-		smtp_update_seconds = int(config["general"]["stats_update_seconds"])
+		global smtp_update_seconds
+		smtp_update_seconds = 60
+
+		smtp_update_seconds = int(config["smtp"]["smtp_update_seconds"])
 
 		global sender_email
 		sender_email = config["smtp"]["sender_email"]
