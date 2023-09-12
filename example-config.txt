@@ -78,10 +78,10 @@ motion_resize_factor = 0.5
 frame_check_delta = 1
 
 # Difference between pixels (0-255) greyscale to count as a valid difference
-movement_delta_threshold = 5
+movement_delta_threshold = 2
 
 # % of frame that needs a valid difference for motion detect to be triggered, frame then passed on for AI event detection.
-movement_hits_threshold_percent = 2.5 
+movement_hits_threshold_percent = 1.0 
 
 # Alarm - (MQTT and SMTP as defined at bottom of this file) for these labels at a custom threshold above baseline_model_confidence
 [label_alarmlist_confidence_override]
