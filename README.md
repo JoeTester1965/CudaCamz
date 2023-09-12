@@ -16,7 +16,7 @@ Uses an (optional) very network efficient [RTSP proxy mediamtx ney rtspproxy](ht
 
 You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./example-config.txt):
 
-1. **[label_alarmlist]** sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given confidence threshold. Examine your logfiles and/or database to see what is coming in.
+1. **[label_alarmlist_confidence_override]** sets what specific events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given default confidence threshold **[baseline_model_confidence]**. Examine your logfiles and/or database to see what is coming in.
 
 2. **[label_percent_screenfill_min]** states that a given event should only be considered if its percetage image area size is bigger than that given. I put this option in as certain types of leaves in the garden had the AI saying all sorts.
 
