@@ -12,7 +12,7 @@ Can record all incoming video as well in case something goes down.
 
 Note that you can use **[camerasAI]** and **[camerasREC]** in the [configuration file](./example-config.txt) to select separate camera streams for AI processing and video recording. I have found using D1 mode (720x480) at 10fps works great for AI whilst using 1080p at 25fps for recording. Can then run four cameras concurrently with the AI running at about 10 fps with **[motion_detection_settings]** set in the configuration file at the given defaults.
 
-Optionally can use a RTSP proxy [mediamtx ney rtspproxy](https://github.com/bluenviron/mediamtx) so that you can do the above and also live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html) if your camera cpu amnd/or network bandwidth is somehow constrained when running multiple sessions.
+Optionally can configure to use a RTSP proxy on the jetson nano **[using_rtsp_simple_proxy]** if your cameras cpu and/or network bandwidth is somehow constrained when running multiple sessions.
 
 ![!](./scope.jpg "")
 
