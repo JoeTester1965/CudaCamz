@@ -43,7 +43,7 @@ sqlite_db = /tmp/database.db
 # you may want to point to installed file in case it changes (but I doubt it).
 label_filename = ./ssd_coco_labels.txt
 
-# This seems to work ok as a golbal baseline, can tune up or down but be mindful of [label_alarmlist]
+# This seems to work ok as a golbal baseline, can tune up or down but be mindful of [label_alarmlist_confidence_override]
 baseline_model_confidence = 0.55
 
 # You may want to use this as having multiple streams for video recording, AI event sensing (done here)
