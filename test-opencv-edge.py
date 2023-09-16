@@ -1,42 +1,56 @@
+#!/usr/bin/python3
 import cv2
 import numpy as np;
+import time
 
-cap = cv2.VideoCapture("/home/jetsondev/Desktop/test1.mp4")
+pixel_delta_threshold = 10
+gaussian_kernel_size = 13
 
-ret, frame = cap.read()
-firstFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-firstFrame = cv2.GaussianBlur(firstFrame, (21, 21), 0)
+caps = {}
+frame = {}
+lastFrame = {}
 
-while cap.isOpened():
+cameras =   [ 
+                ["video1", "/home/jetsondev/Desktop/D1-10fps.mp4"]
+            ]
 
-    ret, frame = cap.read()
-    if ret:
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(gray, (21, 21), 0)
+for camera,camera_uri in cameras:
+    caps[camera] = cv2.VideoCapture(camera_uri)
+    retval, frame[camera] = caps[camera].read()
+    lastFrame[camera] = cv2.cvtColor(frame[camera], cv2.COLOR_BGR2GRAY)
+    lastFrame[camera] = cv2.GaussianBlur(lastFrame[camera], (gaussian_kernel_size, gaussian_kernel_size), 0)
 
-        frameDelta = cv2.absdiff(firstFrame, gray)
-        thresh = cv2.threshold(frameDelta, 5, 255, cv2.THRESH_BINARY)[1]
-        thresh = cv2.dilate(thresh, None, iterations=2)
-     
-        cv2.imshow("Source", frame)
+prev_frame_time = 0
+new_frame_time = 0
+  
+while True:
+    
+    for camera,camera_uri in cameras:
+        retval, frame[camera] = caps[camera].read()
+    
+    for camera,camera_uri in cameras:
+        gray = cv2.cvtColor(frame[camera], cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (gaussian_kernel_size,gaussian_kernel_size), 0)
+
+        frameDelta = cv2.absdiff(lastFrame[camera], gray)
+        lastFrame[camera] = gray
+        thresh = cv2.threshold(frameDelta, pixel_delta_threshold, 255, cv2.THRESH_BINARY)[1]
 
         cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cnts = cnts[0] if len(cnts) == 2 else cnts[1]
         cnts = sorted(cnts, key=cv2.contourArea, reverse=True)
-        for c in cnts:
-            # Highlight contours
-            cv2.drawContours(thresh, [c], -1, (36,255,12), 3)
+        for c in cnts[:1]:
             x,y,w,h = cv2.boundingRect(c)
-            cv2.rectangle(thresh,(x,y),(x+w,y+h),(255,255,255),2)
+            cv2.rectangle(frame[camera],(x,y),(x+w,y+h),(0,0,255),3)
 
-        cv2.imshow("Motion contours", thresh)
+    for camera,camera_uri in cameras:
+        cv2.imshow(camera, frame[camera])
 
-        firstFrame = gray
+    new_frame_time = time.time()
+    fps = 1/(new_frame_time-prev_frame_time)
+    prev_frame_time = new_frame_time
+    fps = int(fps)
+    fps = str(fps)
+    print(fps)
 
-        c = cv2.waitKey(1)
-        if c & 0xFF == ord('q'):
-            break
-    else:
-        break
-
-cap.release()
+    c = cv2.waitKey(1)
