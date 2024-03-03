@@ -10,13 +10,15 @@ CudaCamz runs on a Nvidia Jetson Nano giving your home or small office a bespoke
 
 Can record all incoming video as well in case something goes down.
 
-Uses an (optional) very network efficient [RTSP proxy mediamtx ney rtspproxy](https://github.com/bluenviron/mediamtx) so that you can do the above and also live monitoring with something like [VLC media player](https://www.videolan.org/vlc/index.en-GB.html).
+Note that you can use **[camerasAI]** and **[camerasREC]** in the [configuration file](./example-config.txt) to select separate camera streams for AI processing and video recording. I have found using D1 mode (720x480) at 10fps works great for AI whilst using 1080p at 25fps for recording. Can then run four cameras concurrently with the AI running at about 10 fps with **[motion_detection_settings]** set in the configuration file at the given defaults.
+
+Optionally can configure to use a RTSP proxy on the jetson nano **[using_rtsp_simple_proxy]** if your cameras cpu and/or network bandwidth is somehow constrained when running multiple sessions.
 
 ![!](./scope.jpg "")
 
 You will need some basic Linux skills and a bit of time looking at initial application output to prune false positives by adjusting these sections in the [configuration file](./example-config.txt):
 
-1. **[label_alarmlist]** sets what events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given confidence threshold. Examine your logfiles and/or database to see what is coming in.
+1. **[label_alarmlist_confidence_override]** sets what specific events (a list of possibilities is [here](./ssd_coco_labels.txt)) need alarmed above the given default confidence threshold **[baseline_model_confidence]**. Examine your logfiles and/or database to see what is coming in.
 
 2. **[label_percent_screenfill_min]** states that a given event should only be considered if its percetage image area size is bigger than that given. I put this option in as certain types of leaves in the garden had the AI saying all sorts.
 

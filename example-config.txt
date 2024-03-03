@@ -43,8 +43,8 @@ sqlite_db = /tmp/database.db
 # you may want to point to installed file in case it changes (but I doubt it).
 label_filename = ./ssd_coco_labels.txt
 
-# This seems to work ok as a golbal baseline, can tune up or down but be mindful of [label_alarmlist]
-baseline_model_confidence = 0.5
+# This seems to work ok as a golbal baseline, can tune up or down but be mindful of [label_alarmlist_confidence_override]
+baseline_model_confidence = 0.55
 
 # You may want to use this as having multiple streams for video recording, AI event sensing (done here)
 # and live monitoring (I use vlc) can overwhelm your cameras and or network. 
@@ -78,15 +78,14 @@ motion_resize_factor = 0.5
 frame_check_delta = 1
 
 # Difference between pixels (0-255) greyscale to count as a valid difference
-movement_delta_threshold = 5
+movement_delta_threshold = 2
 
 # % of frame that needs a valid difference for motion detect to be triggered, frame then passed on for AI event detection.
-movement_hits_threshold_percent = 2.5 
+movement_hits_threshold_percent = 1.0 
 
-# Alarm - (MQTT and SMTP as defined at bottom of this file) for these labels above given threshold
-[label_alarmlist]
-person = 0.60
-cat = 0.60
+# Alarm - (MQTT and SMTP as defined at bottom of this file) for these labels at a custom threshold above baseline_model_confidence
+[label_alarmlist_confidence_override]
+person = 0.70
 
 # Only alarm these from ssd_coco_labels.txt if a certain size or above, weed out the false positives!
 [label_percent_screenfill_min]
