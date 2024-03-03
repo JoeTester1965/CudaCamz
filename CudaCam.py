@@ -648,11 +648,14 @@ while True:
 
 	for camera, jetson_videoSource in rtsp_streams.items():
 		if jetson_videoSource: 
+			image = None
 			try:
 				image = jetson_videoSource.Capture(format='rgb8', timeout = camera_down_timeout_ms)
 			except:
-				image = None
 				continue
+			#except:
+			#image = None
+			#continue
 			if not image:
 				logger.info("Timeout in getting image from %s", camera)
 				logger.error("Camera %s is not up, removing.", camera)
