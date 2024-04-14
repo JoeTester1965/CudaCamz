@@ -10,6 +10,7 @@ import time
 from datetime import datetime
 import json
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import sqlite3
 import paho.mqtt.client as mqtt
 import shutil
@@ -463,8 +464,11 @@ else:
 	logging_level = logging.INFO
 
 logging.basicConfig(    handlers=[
-								logging.FileHandler(logfile),
-								logging.StreamHandler()],
+								logging.StreamHandler(),
+								TimedRotatingFileHandler(logfile,
+                                       when="d",
+                                       interval=1,
+                                       backupCount=7)],
 						format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
 						datefmt='%Y-%m-%d:%H:%M:%S',
 						level=logging_level)
