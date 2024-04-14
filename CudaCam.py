@@ -23,6 +23,7 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from threading import Thread
 
 cameras = {}
 camera_ip_address = {}
@@ -36,7 +37,6 @@ resized_image_bw = {}
 CudaImageBuffers = {}
 
 config = None
-smtp_down = False
 
 def read_config(config_file):
 
@@ -337,46 +337,46 @@ def is_motion_detected(camera, image):
 	return False
 
 def send_smtp_message(camera, eventclass, image):
-
-	global smtp_down
 	
 	if SmtpTimeoutCheck.expired():
+		thread = Thread(target=send_smtp_message_thread(camera, eventclass, image))
+		thread.start()
 
-		if not smtp_down:
+def send_smtp_message_thread(camera, eventclass, image):
 
-			subject = camera
-			body = eventclass
-			message = MIMEMultipart()
-			message["From"] = sender_email
-			message["To"] = receiver_email
-			message["Subject"] = subject
+	subject = camera
+	body = eventclass
+	message = MIMEMultipart()
+	message["From"] = sender_email
+	message["To"] = receiver_email
+	message["Subject"] = subject
 		
-			message.attach(MIMEText(body, "plain"))
+	message.attach(MIMEText(body, "plain"))
 		
-			filename = image
-			with open(filename, "rb") as attachment:
-				part = MIMEBase("application", "octet-stream")
-				part.set_payload(attachment.read())
+	filename = image
+	with open(filename, "rb") as attachment:
+		part = MIMEBase("application", "octet-stream")
+		part.set_payload(attachment.read())
 
-			encoders.encode_base64(part)
+	encoders.encode_base64(part)
 
-			part.add_header(
-				"Content-Disposition",
-				f"attachment; filename= {filename}",
-			)
+	part.add_header(
+		"Content-Disposition",
+		f"attachment; filename= {filename}",
+	)
 
-			message.attach(part)
-			text = message.as_string()
+	message.attach(part)
+	text = message.as_string()
 
-			context = ssl.create_default_context()
-			with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-				try:
-					server.login(sender_email, smtp_password)
-					server.sendmail(sender_email, receiver_email, text)
-				except:
-					smtp_down = True
+	context = ssl.create_default_context()
+	with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+		try:
+			server.login(sender_email, smtp_password)
+			server.sendmail(sender_email, receiver_email, text)
+		except:
+			pass
 
-def test_event_needs_alarmed(camera, confidence, eventclass): 
+def test_event_needs_alarmed(camera, confidence, eventclass):
 	
 	retval = True
 	try:
