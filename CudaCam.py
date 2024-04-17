@@ -466,7 +466,7 @@ else:
 logging.basicConfig(    handlers=[
 								logging.StreamHandler(),
 								TimedRotatingFileHandler(logfile,
-                                       when="d",
+                                       when="midnight",
                                        interval=1,
                                        backupCount=7)],
 						format='%(asctime)s,%(msecs)03d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
