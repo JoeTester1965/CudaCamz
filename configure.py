@@ -104,17 +104,17 @@ recorder_amendments.write("sleep 10\n\n")
 recorder_amendments.write("while true; do\n\n")
 recorder_amendments.write("NOW=$(date +\"%d-%m-%Y-%H-%M-%S\")\n\n")
 
-for camera_details, uri in camerasREC.items():
-
-	friendly_name, camera_type = camera_details.split(',')
-
-	directory = config["general"]["image_storage_dir"] + friendly_name + "/"
+for camera_details, uri in camerasAI.items():
 	
+	friendly_name, camera_type = camera_details.split(',')
+	directory = config["general"]["image_storage_dir"] + friendly_name + "/"	
 	if not os.path.exists(directory):
 		os.mkdir(directory)
 
-	directory = config["general"]["video_storage_dir"] + friendly_name + "/"
-	
+for camera_details, uri in camerasREC.items():
+
+	friendly_name, camera_type = camera_details.split(',')
+	directory = config["general"]["video_storage_dir"] + friendly_name + "/"	
 	if not os.path.exists(directory):
 		os.mkdir(directory)
 
@@ -122,6 +122,7 @@ for camera_details, uri in camerasREC.items():
 	filename = time.strftime("%d-%m-%Y-%H-%M-%S") + ".mp4"
 	command_line = "nohup ffmpeg -i '" + uri + "' -acodec copy -vcodec copy $NOW.mp4  > /dev/null 2>&1 < /dev/null &"
 	recorder_amendments.write(command_line + "\n\n")
+
 recorder_amendments.write("sleep " + str(int(config["general"]["video_storage_slice_minutes"]) * 60) + "\n\n")
 recorder_amendments.write("killall ffmpeg\n\n")
 recorder_amendments.write("done\n\n")
