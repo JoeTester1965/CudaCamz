@@ -36,7 +36,7 @@ You will need some basic Linux skills and a bit of time looking at initial appli
 
 ![!](./example1-event.jpg "")
 
-You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in the [configuration file](./config.txt). If you do not use, just delete those sections.
+You also get an email and/or MQTT message for these if [smtp] and/or [mqtt] is configured in the [configuration file](./example-config.txt). If you do not use, just delete those sections.
 
 [Samba](https://www.samba.org/) is useful if you want to access events, images and video folders on the Jetson from a PC, but I tend to use [WinSCP](https://winscp.net/eng/index.php).
 
@@ -62,7 +62,7 @@ python3 ./configure.py ./config.txt
 bash ./start.sh
 ```
 
-2. Examine the images folder / logfiles or sqlite database then tune the [configuration file](./config.txt) to remove any false positives you get.
+2. Examine the images folder / logfiles or sqlite database then tune the [configuration file](./example-config.txt) to remove any false positives you get.
 
 3. Then use this to start and stop CudaCamz:
 
