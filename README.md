@@ -52,7 +52,7 @@ Be patient!
 
 Note that the script ./configure.py below creates **start.sh** and does other configuration work as well. You will need to re-run if cameras are added and/or image/video folders deleted.
 
-1. Put your camera URIs and image / video storage pathnames in the [configuration file](./config.txt), then:
+1. Put your camera URIs and image / video storage pathnames in the [configuration file](./example-config.txt), then:
 
 ```console
 bash ./install-depends.sh
